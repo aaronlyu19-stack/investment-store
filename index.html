@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif;background:transparent;}
+.page{padding:10px;padding-right:360px;}
+.title-bar{text-align:center;margin-bottom:5px;}
+.title-bar h1{font-size:13px;font-weight:800;color:#1a1a2e;}
+.title-bar p{font-size:9px;color:#888;margin-top:2px;}
+.tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:7.5px;font-weight:700;}
+.tl{background:#22c55e;color:#fff;} .tn{background:#f59e0b;color:#fff;} .tv3{background:#6d28d9;color:#fff;}
+.hint{font-size:8.5px;color:#bbb;text-align:center;margin-bottom:3px;}
+.ms{overflow-x:auto;overflow-y:hidden;cursor:grab;}.ms:active{cursor:grabbing;}
+.mw{position:relative;width:1480px;height:820px;}
+svg.cn{position:absolute;top:0;left:0;width:1480px;height:820px;pointer-events:none;}
+.ch{position:absolute;font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;width:112px;text-align:center;top:4px;color:#64748b;}
+.ch.cbn{color:#ef4444;}.ch.copt{color:#7c3aed;}.ch.cinf{color:#15803d;}.ch.capp{color:#0369a1;font-style:italic;}
+/* App row divider */
+.app-divider{position:absolute;border-top:1.5px dashed #cbd5e1;left:0;right:0;}
+.app-label{position:absolute;font-size:8px;font-weight:700;color:#94a3b8;letter-spacing:.05em;}
+.node{position:absolute;width:112px;min-height:78px;border-radius:7px;padding:5px 7px;cursor:pointer;border:1.5px solid rgba(0,0,0,0.1);transition:box-shadow .15s,transform .15s;z-index:2;}
+.node:hover{transform:scale(1.05);box-shadow:0 4px 18px rgba(0,0,0,0.22);z-index:20;}
+.nl{font-size:8.3px;font-weight:800;line-height:1.25;}.nex{font-size:7.2px;margin-top:2px;opacity:.8;line-height:1.25;}.nr{font-size:6.7px;line-height:1.25;margin-top:2px;font-weight:700;opacity:.9;}.nr b{font-weight:900;}.ns{font-size:7px;margin-top:3px;font-weight:800;line-height:1.25;}
+.bottleneck{border:2px solid #ef4444!important;animation:pbn 2s infinite;}
+@keyframes pbn{0%,100%{box-shadow:0 0 5px rgba(239,68,68,.2)}50%{box-shadow:0 0 14px rgba(239,68,68,.55)}}
+.lumentum-node{border:2.5px solid #f59e0b!important;animation:pgold 2.5s infinite;}
+@keyframes pgold{0%,100%{box-shadow:0 0 5px rgba(245,158,11,.3)}50%{box-shadow:0 0 16px rgba(245,158,11,.65)}}
+/* Node category themes */
+.cm{background:#fef3c7;color:#78350f;}.cm .ns{color:#d97706;}
+.cd{background:#f0e6ff;color:#4c1d95;}.cd .ns{color:#7c3aed;}
+.ceq{background:#f1f5f9;color:#1e293b;}.ceq .ns{color:#475569;}
+.cf{background:#dbeafe;color:#1e3a8a;}.cf .ns{color:#1d4ed8;}
+.cme{background:#d1fae5;color:#064e3b;}.cme .ns{color:#059669;}
+.cp{background:#fff7ed;color:#7c2d12;}.cp .ns{color:#ea580c;}
+.cch{background:#1e3a8a;color:#e0eaff;}.cch .ns{color:#93c5fd;}
+.co{background:linear-gradient(135deg,#4c1d95,#6d28d9);color:#ede9fe;}.co .ns{color:#fde68a;}
+.co2{background:#ede9fe;color:#4c1d95;}.co2 .ns{color:#7c3aed;}
+.co3{background:#e0e7ff;color:#1e1b4b;}.co3 .ns{color:#4338ca;}
+.csy{background:#1e293b;color:#cbd5e1;}.csy .ns{color:#94a3b8;}
+.cnuc{background:#14532d;color:#bbf7d0;}.cnuc .ns{color:#6ee7b7;}
+.cdc{background:#292524;color:#d6d3d1;}.cdc .ns{color:#a8a29e;}
+.ccu{background:#78350f;color:#fde68a;}.ccu .ns{color:#fcd34d;}
+.ccl{background:#0369a1;color:#e0f2fe;}.ccl .ns{color:#7dd3fc;}
+.cai{background:#064e3b;color:#a7f3d0;}.cai .ns{color:#6ee7b7;}
+.capp{background:#f8fafc;color:#334155;border:1.5px dashed #94a3b8!important;}.capp .ns{color:#0ea5e9;}
+.csup{background:#eef2ff;color:#312e81;border:1.5px solid #818cf8!important;}.csup .ns{color:#4f46e5;}
+.cwat{background:#ecfeff;color:#164e63;border:1.5px solid #06b6d4!important;}.cwat .ns{color:#0891b2;}
+/* Links */
+path.link{stroke:rgba(148,163,184,.18);stroke-width:1.5;fill:none;transition:stroke .18s,stroke-width .18s;}
+path.link.hot{stroke:rgba(59,130,246,.78);stroke-width:2.5;}
+path.link.bnl{stroke:rgba(239,68,68,.22);}
+path.link.bnl.hot{stroke:rgba(239,68,68,.88);stroke-width:3;}
+path.link.dsl{stroke-dasharray:4 4;stroke:rgba(124,58,237,.15);}
+path.link.dsl.hot{stroke:rgba(124,58,237,.75);stroke-width:2.2;}
+path.link.opl{stroke:rgba(109,40,217,.32);stroke-width:2;}
+path.link.opl.hot{stroke:rgba(109,40,217,.9);stroke-width:3;}
+path.link.infl{stroke:rgba(21,128,61,.3);stroke-width:1.8;}
+path.link.infl.hot{stroke:rgba(21,128,61,.88);stroke-width:3;}
+path.link.appl{stroke:rgba(14,165,233,.28);stroke-width:1.5;stroke-dasharray:5 3;}
+path.link.appl.hot{stroke:rgba(14,165,233,.85);stroke-width:2.5;}
+#tt{position:fixed;background:#1e293b;color:#e2e8f0;border-radius:8px;padding:9px 12px;font-size:10px;line-height:1.65;max-width:230px;z-index:9999;pointer-events:none;display:none;box-shadow:0 6px 24px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);}
+.leg{display:flex;flex-wrap:wrap;gap:5px;padding:7px 10px;justify-content:center;font-size:8px;color:#555;border-top:1px solid #eee;margin-top:5px;}
+.li{display:flex;align-items:center;gap:3px;}.ld{width:8px;height:8px;border-radius:2px;}
+.src{font-size:7.5px;color:#bbb;text-align:center;padding:3px 8px;}
+#detailPanel{position:fixed;right:12px;top:66px;bottom:14px;width:330px;background:rgba(255,255,255,.97);border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 12px 34px rgba(15,23,42,.2);z-index:80;overflow:auto;padding:14px 15px;display:none;color:#0f172a;}#detailPanel.open{display:block}.dp-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:1px solid #e2e8f0;padding-bottom:8px;margin-bottom:10px}.dp-title{font-size:15px;font-weight:900;line-height:1.25}.dp-cat{font-size:10px;color:#64748b;margin-top:3px}.dp-close{border:0;background:#f1f5f9;color:#475569;border-radius:6px;width:24px;height:24px;cursor:pointer;font-weight:900}.dp-sec{margin:10px 0}.dp-sec h3{font-size:10px;color:#334155;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}.dp-sec p{font-size:12px;line-height:1.65;color:#1e293b}.dp-comp{font-size:12px;line-height:1.55;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:7px 8px;margin-top:5px}.dp-comp b{display:inline-block;width:42px;color:#0f172a} </style>
+</head>
+<body>
+<div class="page">
+<div class="title-bar">
+  <h1>AI 与半导体完整生态图谱 <span class="tag tl">2026</span> <span class="tag tv3">v4 — 基础设施扩展版</span> <span class="tag tn">+15 个新增产业</span></h1>
+  <p>悬停可高亮连接 · 红色 = 瓶颈 · 金色 = Lumentum · 绿色 = 物理基础设施 · 虚线 = 应用/赋能环节</p>
+</div>
+<div class="hint">← 可拖动或横向滚动 →</div>
+<div class="ms">
+  <div class="mw" id="mw"><svg class="cn" id="svg"></svg></div>
+</div>
+<div class="leg">
+  <b style="margin-right:3px">供应链：</b>
+  <div class="li"><div class="ld" style="background:#fef3c7;border:1px solid #d97706"></div>原材料</div>
+  <div class="li"><div class="ld" style="background:#f0e6ff;border:1px solid #7c3aed"></div>设计</div>
+  <div class="li"><div class="ld" style="background:#f1f5f9;border:1px solid #64748b"></div>设备</div>
+  <div class="li"><div class="ld" style="background:#dbeafe;border:1px solid #3b82f6"></div>晶圆代工/存储</div>
+  <div class="li"><div class="ld" style="background:#fff7ed;border:1px solid #ef4444"></div>封装 ⚠</div>
+  <div class="li"><div class="ld" style="background:#1e3a8a"></div>AI 芯片</div>
+  <div class="li"><div class="ld" style="background:linear-gradient(135deg,#4c1d95,#6d28d9);border:1px solid #f59e0b"></div>⚡ 光互连</div>
+  <div class="li"><div class="ld" style="background:#1e293b"></div>系统</div>
+  <div class="li"><div class="ld" style="background:#14532d"></div>☢ 核能</div>
+  <div class="li"><div class="ld" style="background:#292524"></div>数据中心地产</div>
+  <div class="li"><div class="ld" style="background:#78350f"></div>铜/电网</div>
+  <div class="li"><div class="ld" style="background:#0369a1"></div>云</div>
+  <div class="li"><div class="ld" style="background:#064e3b"></div>AI 模型</div>
+  <div class="li"><div class="ld" style="background:#eef2ff;border:1px solid #818cf8"></div>部署赋能环节</div>
+  <div class="li"><div class="ld" style="background:#ecfeff;border:1px solid #06b6d4"></div>水/冷却液</div>
+  <div class="li"><div class="ld" style="background:#f8fafc;border:1.5px dashed #94a3b8"></div>终端应用</div>
+  <b style="margin-left:6px;margin-right:3px">连接：</b>
+  <div class="li"><div style="width:16px;height:2px;background:rgba(239,68,68,.7);margin-top:4px"></div>瓶颈</div>
+  <div class="li"><div style="width:16px;height:2px;background:rgba(109,40,217,.7);margin-top:4px"></div>光互连</div>
+  <div class="li"><div style="width:16px;height:2px;background:rgba(21,128,61,.7);margin-top:4px"></div>物理基础设施</div>
+  <div class="li"><div style="width:14px;height:1px;border-top:2px dashed rgba(14,165,233,.8);margin-top:4px"></div>应用流向</div>
+  <div class="li"><div style="width:14px;height:1px;border-top:2px dashed rgba(124,58,237,.6);margin-top:4px"></div>设计/IP</div>
+</div>
+<div class="src">已核对来源：SEMI 设备预测 · TrendForce AI 封装/晶圆代工分析 · Corning-Meta 光纤协议 · NVIDIA 对 Lumentum/Coherent 光学投资 · McKinsey 数据中心资本开支 · Ecolab-CoolIT 液冷交易 · IEA/EPRI 电力需求展望 · 公司公告/新闻稿</div>
+</div>
+<div id="tt"></div><aside id="detailPanel" aria-live="polite"></aside>
+<script>
+const NW=112,NH=80;
+var nodes=[
+// 原材料
+{id:'n1',x:74,y:148,label:'硅晶圆',ex:'信越化学、SUMCO、Siltronic',stat:'日本厂商主导 300mm 供应',cat:'cm',
+ tip:'300mm 硅晶圆是先进逻辑、存储以及许多模拟芯片的基础输入。供应集中在少数日本、台湾、德国和韩国厂商手中。',usCompanies:'信越/SUMCO/Siltronic',chinaCompanies:'沪硅产业/中环/立昂微',usRoute:'美国路线依赖日本、德国和中国台湾等盟友体系的高纯 300mm 晶圆供应，重点是先进制程稳定性和长期合约。',chinaRoute:'中国路线以国产 8/12 英寸晶圆扩产和材料替代为主，先进 300mm 一致性、良率和客户认证仍是核心门槛。',compare:'晶圆本身不是 AI 芯片最醒目的瓶颈，但它是所有先进逻辑、存储和模拟芯片的底座。'},
+{id:'n2',x:74,y:265,label:'化学品与气体',ex:'JSR、默克、Entegris',stat:'光刻胶、CMP、稀有气体',cat:'cm',
+ tip:'光刻胶、CMP 抛光液、湿化学品、稀有气体和特种气体是晶圆厂持续消耗的材料，也支撑化合物半导体与光子器件生产。',usCompanies:'DuPont/Entegris/Merck/JSR',chinaCompanies:'彤程/安集/华特气体/鼎龙',usRoute:'美国及盟友体系强在高端光刻胶、CMP、湿化学品、过滤纯化和特种气体的工艺积累。',chinaRoute:'中国路线围绕成熟制程材料国产替代推进，在 CMP、电子特气和部分光刻胶上加速验证。',compare:'材料替代不只看能否生产，还看稳定性、缺陷率、客户认证和跨批次一致性。'},
+{id:'n_inp',x:74,y:382,label:'InP / III-V 晶圆',ex:'IQE、Wafer Tech、AXT',stat:'光子与射频基底',cat:'cm',
+ tip:'磷化铟、砷化镓及相关 III-V 材料用于激光器、光电二极管、VCSEL、射频芯片和光互连组件。它们与主流硅晶圆链条并行，而不是包含在其中。',usCompanies:'Coherent/IQE/AXT/Lumentum',chinaCompanies:'三安光电/华工科技/光迅科技/长光华芯',usRoute:'美国路线更强在 InP/GaAs 外延、激光器、探测器和高速光通信器件的工程化。',chinaRoute:'中国路线在光模块、部分激光器和化合物半导体产能上增长快，但高端 InP 器件仍需追赶。',compare:'光互连越重要，III-V 材料和器件越像 AI 数据中心的隐形上游。'},
+{id:'n3',x:74,y:500,label:'关键矿产',ex:'镓、锗、稀土',stat:'中国主导精炼环节',cat:'cm',
+ tip:'镓、锗、稀土, copper, and other critical minerals feed chips, photonics, magnets, power electronics, and grid hardware. Export controls and refining concentration make this a geopolitical risk layer.',usCompanies:'MP Materials/Freeport/Albemarle',chinaCompanies:'中国稀土/北方稀土/洛钼/紫金',usRoute:'美国路线正在重建关键矿产开采、分离、精炼和友岸供应链。',chinaRoute:'中国路线在稀土、镓、锗、石墨和多种精炼环节具有规模与政策工具优势。',compare:'关键矿产影响芯片、光学、功率器件、电机和电网，不是单一半导体问题。'},
+// 设计
+{id:'n4',x:208,y:165,label:'EDA 工具',ex:'Synopsys、Cadence、Siemens EDA',stat:'美国主导的设计工具链',cat:'cd',
+ tip:'Electronic 设计 Automation software is required to design, verify, and tape out advanced chips. The market is highly concentrated and subject to export controls for advanced-node design.',usCompanies:'Synopsys/Cadence/Siemens EDA',chinaCompanies:'华大九天/概伦电子/广立微',usRoute:'美国路线掌握先进数字设计、验证、IP 集成和先进节点 sign-off 的核心工具链。',chinaRoute:'中国路线重点补齐模拟、平板、成熟制程和部分数字 EDA，但先进节点全流程仍受限制。',compare:'EDA 是典型软件瓶颈，出口管制会直接影响先进芯片设计能力。'},
+{id:'n5',x:208,y:358,label:'芯片 IP / 架构',ex:'Arm、RISC-V、互连 IP',stat:'SoC 授权层',cat:'cd',
+ tip:'处理器核心、互连、内存控制器和接口 IP 能缩短芯片设计周期。Arm 仍是移动与嵌入式系统核心，RISC-V 在定制芯片和中国相关设计中持续增长。',usCompanies:'Arm/RISC-V/SiFive/Arteris',chinaCompanies:'芯原/平头哥/中科院/赛昉',usRoute:'美国及盟友路线依赖 Arm、RISC-V 商业生态、互连 IP 和成熟软件工具。',chinaRoute:'中国路线强调 RISC-V、自研控制核和国产接口 IP，以降低授权和制裁风险。',compare:'IP 层决定 SoC 设计效率，也决定软件生态和长期迁移成本。'},
+// 设备
+{id:'n6',x:342,y:136,label:'光刻（EUV）',ex:'ASML',stat:'EUV 设备唯一商业供应商',cat:'ceq',
+ tip:'ASML 是用于最先进逻辑和存储层的 EUV 光刻系统唯一商业供应商。先进光刻出口管制使其成为最具战略意义的设备节点之一。',usCompanies:'ASML/Applied/KLA/Cymer',chinaCompanies:'上海微电子/华卓精科/科益虹源',usRoute:'美国路线本身不生产 EUV 主机，但通过荷兰 ASML、美国光源/检测/材料生态控制先进光刻体系。',chinaRoute:'中国路线聚焦 DUV 国产化、零部件突破和多重曝光工艺，EUV 仍是最大差距。',compare:'光刻是最难复制的设备系统工程，牵涉光源、镜头、控制、材料和工艺。'},
+{id:'n7',x:342,y:262,label:'Dep & Etch 设备',ex:'应用材料、Lam Research、东京电子',stat:'2026 年 WFE 约 1450 亿美元预测',cat:'ceq',
+ tip:'沉积、刻蚀、离子注入、清洗和过程控制设备共同形成芯片物理结构。SEMI 预测 2026 年半导体制造设备销售将创纪录，主要由先进逻辑、存储和中国扩产推动。',usCompanies:'Applied Materials/Lam/TEL',chinaCompanies:'北方华创/中微公司/拓荆科技',usRoute:'美国路线在沉积、刻蚀、离子注入和工艺控制上拥有完整高端设备组合。',chinaRoute:'中国路线在刻蚀、PVD/CVD、清洗和部分成熟制程设备上进步很快。',compare:'设备可用性最终要由先进工艺良率、稳定运行时间和客户导入决定。'},
+{id:'n8',x:342,y:388,label:'检测与测试',ex:'KLA、Teradyne、Advantest',stat:'对 2nm/3nm 良率至关重要',cat:'ceq',
+ tip:'KLA 在各工艺步骤检测晶圆缺陷；Teradyne 和 Advantest 测试成品芯片。面向 CoWoS 等先进封装的测试正在成为新的瓶颈。',usCompanies:'KLA/Teradyne/Advantest',chinaCompanies:'精测电子/长川科技/华峰测控/中科飞测',usRoute:'美国及日本路线强在缺陷检测、量测、ATE 和先进封装测试。',chinaRoute:'中国路线在测试机、分选机和部分量测设备上国产化加速，但高端检测仍有差距。',compare:'越接近先进制程和先进封装，检测与测试越决定可制造性。'},
+{id:'n_mask',x:342,y:515,label:'光掩模',ex:'Toppan、Photronics、HOYA、DNP',stat:'芯片层图形模板',cat:'ceq',
+ tip:'光掩模 are patterned quartz plates used in lithography for each chip layer. EUV mask blanks, pellicles, inspection, and repair are specialized sub-supply chains that can affect advanced-node yield and cycle time.',usCompanies:'Photronics/Toppan/HOYA/DNP',chinaCompanies:'清溢光电/路维光电/中芯国际掩模',usRoute:'美国及日系路线掌握高端掩模、EUV 掩模坯、检测和修复能力。',chinaRoute:'中国路线在成熟制程光掩模和本土晶圆厂配套上提升，先进 EUV 相关环节仍受限。',compare:'光掩模是制程图形的载体，任何缺陷都会被复制到芯片层。'},
+// Fabrication
+{id:'n9',x:476,y:172,label:'逻辑晶圆代工',ex:'台积电、三星、Intel Foundry',stat:'先进制程产能',cat:'cf',
+ tip:'前沿 AI 加速器依赖先进逻辑制程，其中台积电是最强外部代工厂。三星和 Intel Foundry 也在竞争，但实际可用性取决于良率、产能、封装配套和客户认证。',usCompanies:'TSMC/Intel Foundry/Samsung',chinaCompanies:'中芯国际/华虹/晶合集成',usRoute:'美国路线依托 TSMC、Samsung、Intel Foundry 和先进封装生态获得最先进 AI 芯片制造能力。',chinaRoute:'中国路线以中芯、华虹等为核心推进成熟制程、特色工艺和受限条件下的先进节点。',compare:'先进逻辑差距不只是线宽，也包括良率、产能、EDA、设备、封装和客户认证。'},
+{id:'n10',x:476,y:352,label:'HBM / DRAM 存储',ex:'SK 海力士、三星、美光',stat:'HBM3E 向 HBM4 过渡',cat:'cme',
+ tip:'高带宽存储对 AI 加速器至关重要，因为计算常受内存带宽限制。SK 海力士、三星和美光都在扩充 HBM 产能，HBM4 的认证与爬坡节奏是 2026-2027 年重点观察项。',usCompanies:'Micron/SK hynix/Samsung',chinaCompanies:'长江存储/长鑫存储/兆易创新',usRoute:'美国及盟友路线在 HBM、DRAM 和 NAND 高端产品上保持领先，并深度绑定 GPU 生态。',chinaRoute:'中国路线在 NAND 和 DRAM 国产化上进展明显，但 HBM 高端堆叠和大规模认证仍是短板。',compare:'AI 加速器往往受内存带宽约束，HBM 是中美路线差异的重要放大器。'},
+{id:'n_abf',x:476,y:515,label:'ABF 载板',ex:'Ibiden、Shinko、AT&S、欣兴',stat:'隐形封装瓶颈',cat:'cm',
+ tip:'ABF 载板是许多先进芯片封装中的高密度有机基板。AI 加速器提高层数、载板尺寸和良率压力，并将约束传导到玻纤布、铜箔、钻孔和层压产能。',usCompanies:'Ibiden/Shinko/AT&S/Unimicron',chinaCompanies:'深南电路/兴森科技/珠海越亚',usRoute:'美国路线依赖日本、中国台湾和欧洲高端 ABF 载板供应商。',chinaRoute:'中国路线正在切入服务器载板、IC 载板和高端 PCB，但大尺寸高层 ABF 良率仍难。',compare:'ABF 是先进封装的底座，供给紧张会直接限制 GPU/HBM 封装节奏。'},
+// Packaging
+{id:'n11',x:610,y:215,label:'先进封装（CoWoS）',ex:'台积电 CoWoS、日月光、Amkor',stat:'AI 主要瓶颈',cat:'cp',bottleneck:true,
+ tip:'先进封装整合加速器裸片、HBM 堆叠、中介层和载板。CoWoS 类产能仍是最显著的 AI 瓶颈之一，约束还延伸到 ABF 载板、测试和 PCB 供应。',usCompanies:'TSMC/Amkor/Intel/ASE',chinaCompanies:'通富微电/长电科技/华天科技/甬矽',usRoute:'美国路线依托台积电 CoWoS、Intel 先进封装和 OSAT 生态整合 GPU 与 HBM。',chinaRoute:'中国路线在 2.5D/3D 封装、Chiplet 和本土 OSAT 能力上加速，但顶级 AI 封装产能仍不足。',compare:'先进封装是 AI 芯片从裸片变成可用算力的关键瓶颈。'},
+{id:'n12',x:610,y:420,label:'OSAT / 标准封装',ex:'日月光、Amkor、长电科技、力成',stat:'组装、封装、测试',cat:'cp',
+ tip:'OSAT 厂商为许多芯片公司提供外包组装、封装和测试。它们支撑标准封装、部分先进封装流程、溢出产能以及芯片进入系统前的最终测试。',usCompanies:'ASE/Amkor/Powertech',chinaCompanies:'长电科技/通富微电/华天科技',usRoute:'美国路线依赖全球 OSAT 网络处理组装、测试和部分先进封装外包。',chinaRoute:'中国路线拥有全球重要 OSAT 产能，强在规模、成熟封装和部分高端封装突破。',compare:'OSAT 决定芯片进入系统前的最后制造环节，也影响交付节奏。'},
+// AI 芯片
+{id:'n13',x:744,y:152,label:'GPU / AI 加速器',ex:'NVIDIA Blackwell/Rubin、AMD Instinct',stat:'训练/推理主引擎',cat:'cch',
+ tip:'AI 加速器是训练和高吞吐推理的计算引擎。NVIDIA 领先数据中心加速器市场，AMD、云厂商 ASIC 和其他定制芯片则在软件支持和供应能力较强的场景中竞争。',usCompanies:'NVIDIA/AMD/Intel',chinaCompanies:'华为昇腾/寒武纪/壁仞/摩尔线程',usRoute:'美国路线以 NVIDIA GPU 和 CUDA 生态为核心，AMD 与 Intel 提供替代路线。',chinaRoute:'中国路线以华为昇腾为主轴，叠加寒武纪、壁仞等国产加速器和本土软件栈。',compare:'美国强在生态和领先制程供给，中国强在政策牵引和本土需求闭环。'},
+{id:'n14',x:744,y:302,label:'定制 ASIC / TPU',ex:'Google TPU、AWS Trainium、Meta MTIA、Maia',stat:'云-owned silicon',cat:'cch',
+ tip:'超大规模云厂商设计定制加速器，以降低成本、增强供应控制，并针对自身模型优化。这些芯片仍依赖同样的晶圆代工、HBM、封装、网络和软件供应链。',usCompanies:'Google TPU/AWS Trainium/Microsoft Maia',chinaCompanies:'阿里含光/百度昆仑/腾讯/字节',usRoute:'美国路线由云巨头自研 ASIC，目标是降低推理/训练成本并减少对通用 GPU 的依赖。',chinaRoute:'中国路线同样由大云厂和互联网公司推动自研芯片，用于本土云、搜索、推荐和大模型场景。',compare:'ASIC 路线更依赖软件栈和自有工作负载，未必适合所有客户。'},
+{id:'n15',x:744,y:455,label:'CPU / 网络 SoC',ex:'Intel Xeon、AMD EPYC、博通、Marvell',stat:'控制平面 + 网络',cat:'cch',
+ tip:'CPU 负责围绕加速器编排存储、网络、调度和推理服务。以太网交换 ASIC、DPU、NIC、重定时器和定制网络芯片对 GPU 集群扩展至关重要。',usCompanies:'Intel/AMD/Broadcom/Marvell',chinaCompanies:'海光/飞腾/华为/盛科通信',usRoute:'美国路线在服务器 CPU、交换 ASIC、DPU、NIC 和高速 SerDes 上优势明显。',chinaRoute:'中国路线在国产 CPU、交换芯片、网卡和安全可控场景中推进替代。',compare:'没有 CPU、网络 SoC 和 I/O，GPU 集群无法形成可调度的系统。'},
+// 光互连
+{id:'n_lite',x:878,y:213,label:'⚡ Lumentum（LITE）',ex:'EML 激光器 · 800G/1.6T · CPO',stat:'AI 光互连关键供应商',cat:'co',lumentum:true,
+ tip:'Lumentum 供应用于 AI 数据中心互连的高速激光器和光学组件。NVIDIA 在 2026 年宣布战略投资和采购承诺，以支持下一代光互连和共封装光学供应。',usCompanies:'Lumentum/Coherent/Broadcom',chinaCompanies:'光迅科技/华工科技/源杰科技/长光华芯',usRoute:'美国路线强在高速 EML、硅光、CPO 和高端光器件供应链。',chinaRoute:'中国路线强在光模块制造和部分激光器国产化，正向更高速率器件上移。',compare:'光互连决定大规模 AI 集群能否低延迟、高带宽地连接起来。'},
+{id:'n_coh',x:878,y:373,label:'Coherent 及其他',ex:'Coherent、Fabrinet、中际旭创',stat:'光互连 components & modules',cat:'co2',
+ tip:'Coherent、Fabrinet、中际旭创, and peers supply lasers, photodetectors, transceivers, amplifiers, and module manufacturing. NVIDIA also announced an equity investment in Coherent for AI optical networking supply.',usCompanies:'Coherent/Fabrinet/Marvell',chinaCompanies:'中际旭创/新易盛/光迅科技/天孚通信',usRoute:'美国路线掌握关键光器件、DSP、交换芯片和部分高端模块设计。',chinaRoute:'中国路线在 800G/1.6T 光模块制造、封装和供应响应上非常强。',compare:'光模块是中美路线少数同时深度互相依赖的环节。'},
+{id:'n_fiber',x:878,y:515,label:'光互连 Fiber (Corning)',ex:'Corning、Prysmian、OFS、CommScope',stat:'高光纤密度 AI 集群',cat:'co3',
+ tip:'AI 数据中心使用的光链路远多于传统机房。Corning 已宣布与 Meta 和 NVIDIA 相关的重大 AI 光纤交易，使光纤、线缆和连接器产能成为计算供应链的一部分。',usCompanies:'Corning/CommScope/Prysmian/OFS',chinaCompanies:'长飞光纤/亨通光电/烽火通信',usRoute:'美国路线依赖 Corning 等在光纤预制棒、数据中心布线和特种光纤上的能力。',chinaRoute:'中国路线拥有全球级光纤光缆产能，强在规模、成本和国内电信/云基础设施配套。',compare:'AI 数据中心光纤密度上升，让传统通信材料进入 AI 算力链。'},
+// 系统
+{id:'n16',x:1002,y:182,label:'AI Servers & 系统',ex:'Supermicro、Dell、HPE、富士康、ODM',stat:'机架级集成',cat:'csy',
+ tip:'AI 系统集成加速器、CPU、内存、网卡、存储、电源架、冷却回路、线缆和固件。机架级设计提升了功率密度、热复杂度和验证要求。',usCompanies:'Dell/HPE/Supermicro/Foxconn',chinaCompanies:'浪潮信息/工业富联/新华三/中科曙光',usRoute:'美国路线强在 NVIDIA 认证服务器、ODM 供应链、整机验证和全球客户交付。',chinaRoute:'中国路线强在本土服务器集成、国产加速卡适配和政企/运营商交付。',compare:'服务器不是简单装配，电源、散热、固件、网络和集群验证都会影响算力可用性。'},
+{id:'n17',x:1002,y:330,label:'网络',ex:'博通、Arista、NVIDIA、Marvell',stat:'以太网、InfiniBand、NVLink',cat:'csy',
+ tip:'AI clusters depend on high-bandwidth, low-latency networking across servers and racks. 以太网、InfiniBand、NVLink, optical modules, switch ASICs, NICs, and cabling all affect usable cluster performance.',usCompanies:'Broadcom/Arista/NVIDIA/Cisco',chinaCompanies:'华为/新华三/锐捷/盛科通信',usRoute:'美国路线在高端以太网交换 ASIC、InfiniBand、数据中心交换机和软件生态上领先。',chinaRoute:'中国路线以华为、新华三、锐捷等构建本土数据中心网络，并推进国产交换芯片。',compare:'AI 网络路线正在从单机性能竞争转向集群通信效率竞争。'},
+{id:'n18',x:1002,y:478,label:'供电与散热',ex:'Vertiv、Eaton、施耐德、台达',stat:'设施约束层',cat:'csy',
+ tip:'供电和热管理越来越决定已采购算力能否真正部署。更高机架密度会把约束推向变压器、开关设备、UPS、液冷和电网接入。',usCompanies:'Vertiv/Eaton/Schneider/Delta',chinaCompanies:'台达/科华数据/英维克/申菱环境',usRoute:'美国及全球路线强在大型数据中心电力、UPS、热管理和运维体系。',chinaRoute:'中国路线在 UPS、精密空调、液冷集成和本土数据中心交付中具备规模优势。',compare:'电力和散热决定芯片能否真正上架运行。'},
+// 物理基础设施structure — NEW COLUMN
+{id:'n_nuclear',x:1126,y:196,label:'核能',ex:'Constellation、Oklo、NuScale、TerraPower',stat:'稳定清洁电力选项',cat:'cnuc',
+ tip:'核能正成为 AI 数据中心采购中的重要主题，因为超大规模云厂商需要大量稳定、低碳电力。相关交易和合作正在出现，但时间表取决于监管、融资、建设和电网接入。',usCompanies:'Constellation/Oklo/NuScale/TerraPower',chinaCompanies:'中核集团/中广核/国电投/华能',usRoute:'美国路线把核电和小堆视为 AI 数据中心长期稳定低碳电力选项。',chinaRoute:'中国路线拥有持续建设核电的工程能力和供应链，但数据中心直接采购模式仍在探索。',compare:'核能适合长期基荷电力，不是短期服务器交付的快速解法。'},
+{id:'n_dcre',x:1126,y:342,label:'数据中心地产',ex:'Equinix、Digital Realty、Iron Mountain',stat:'土地、许可、楼壳、园区',cat:'cdc',
+ tip:'数据中心地产涵盖土地、分区、许可、楼壳、园区设计、托管和通电容量。McKinsey 估计，到 2030 年全球数据中心需要数万亿美元级投资。',usCompanies:'Equinix/Digital Realty/Iron Mountain',chinaCompanies:'秦淮数据/万国数据/世纪互联/润泽科技',usRoute:'美国路线由云厂、REIT 和专业数据中心运营商共同推动超大园区建设。',chinaRoute:'中国路线由云厂、运营商和第三方 IDC 建设本土数据中心集群。',compare:'土地、许可、通电容量和客户签约共同决定数据中心地产价值。'},
+{id:'n_copper',x:1126,y:488,label:'铜与电网基础设施',ex:'Prysmian、Nexans、Amphenol、Eaton',stat:'电缆、母线、变电站',cat:'ccu',
+ tip:'变电站、电缆、母线、变压器、开关设备、电源架以及数据中心短距互连都需要铜和电网硬件。AI 增长叠加在电气化和电网更新周期之上。',usCompanies:'Prysmian/Nexans/Amphenol/Eaton',chinaCompanies:'亨通光电/中天科技/宝胜/东方电缆',usRoute:'美国路线关注电网升级、高压电缆、连接器、母线和数据中心内部配电。',chinaRoute:'中国路线在电缆、输配电设备和工程交付上有大规模制造能力。',compare:'铜和电网设备把发电侧、电网侧和数据中心机房连接成一条物理链。'},
+{id:'n_backup',x:1252,y:522,label:'备用 / 现场供电',ex:'GE Vernova、Caterpillar、Cummins、Bloom',stat:'发电机组、燃机、燃料电池',cat:'cnuc',
+ tip:'备用发电和现场供电已成为 AI 容量规划的一部分。燃气轮机、柴油或燃气发电机组、燃料电池、电池和微电网可提升韧性，或在电网容量跟上之前弥补缺口。',usCompanies:'GE Vernova/Caterpillar/Cummins/Bloom',chinaCompanies:'潍柴/玉柴/东方电气/阳光电源',usRoute:'美国路线使用燃机、发电机组、燃料电池和微电网增强数据中心韧性。',chinaRoute:'中国路线在发电设备、储能逆变器和园区能源系统上具备制造和工程能力。',compare:'现场供电能补足电网短板，但也会带来燃料、排放、许可和运维问题。'},
+// 云
+{id:'n19',x:1252,y:225,label:'超大规模云厂商',ex:'AWS, Azure, Google 云, Meta, Oracle',stat:'主要需求驱动',cat:'ccl',
+ tip:'超大规模云厂商 turn model demand into capex for chips, servers, networking, land, power, and cooling. Their procurement decisions set the volume signal for much of the upstream AI infrastructure supply chain.',usCompanies:'AWS/Azure/Google Cloud/Meta/Oracle',chinaCompanies:'阿里云/腾讯云/华为云/百度智能云',usRoute:'美国路线由全球云巨头以大规模资本开支驱动 GPU 集群、网络、数据中心和模型平台。',chinaRoute:'中国路线由云厂、运营商和大模型公司共同建设国产算力与模型服务。',compare:'云厂是需求放大器，它们的采购决定会反向塑造整个上游供应链。'},
+{id:'n20',x:1252,y:432,label:'AI-Native 云',ex:'CoreWeave、Lambda、Crusoe、Together AI',stat:'专业算力提供商',cat:'ccl',
+ tip:'AI 原生云提供商为模型开发者打包 GPU 集群、网络、存储、编排和支持服务。它们扩展了大型云厂商之外的算力供给，但仍依赖同一套物理供应链。',usCompanies:'CoreWeave/Lambda/Crusoe/Together',chinaCompanies:'火山引擎/无问芯穹/趋境科技/硅基流动',usRoute:'美国路线出现专业 GPU 云和推理云，服务 AI 初创与模型公司。',chinaRoute:'中国路线在国产 GPU/昇腾算力调度、模型托管和行业云场景中快速发展。',compare:'AI 原生云的核心能力是把硬件短缺、网络复杂度和软件运维封装成服务。'},
+// AI 模型
+{id:'n21',x:1374,y:215,label:'Frontier AI 模型',ex:'OpenAI、Google DeepMind、Anthropic、xAI',stat:'高算力需求',cat:'cai',
+ tip:'前沿模型实验室推动大型训练集群和高规模推理需求。训练、后训练、合成数据生成和推理扩展都会反向拉动芯片、电力、网络和数据中心需求。',usCompanies:'OpenAI/Anthropic/Google DeepMind/xAI',chinaCompanies:'DeepSeek/智谱/月之暗面/百川/零一万物',usRoute:'美国路线依托超大算力、顶级研究团队和全球产品分发推进前沿模型。',chinaRoute:'中国路线强调高效率训练、本土应用、国产算力适配和开源/开放权重扩散。',compare:'模型路线差异会反过来影响芯片、软件栈、推理成本和云服务形态。'},
+{id:'n22',x:1374,y:412,label:'开放权重 AI',ex:'Llama、DeepSeek、Qwen、Mistral',stat:'高效模型扩大需求',cat:'cai',
+ tip:'开放权重模型扩大 AI 采用范围，并在云、企业、边缘设备和本地推理中创造需求。它们可降低单任务成本，同时增加计算、存储和网络的总使用量。',usCompanies:'Meta Llama/Mistral/Databricks',chinaCompanies:'DeepSeek/Qwen/智谱/书生',usRoute:'美国路线以 Llama、Mistral 等开放权重模型扩大生态和开发者基础。',chinaRoute:'中国路线在 Qwen、DeepSeek 等开放模型上表现强劲，并推动国产算力适配。',compare:'开放权重模型降低使用门槛，也会扩大推理总需求。'},
+// Deployment enablers — industries that turn chips into usable AI capacity
+{id:'n_pmic',x:610,y:600,label:'功率半导体 / PMIC',ex:'MPS、英飞凌、TI、瑞萨、onsemi',stat:'AI 机架电压调节',cat:'csup',
+ tip:'NEW: AI 服务器需要高密度电源管理：PMIC、电压调节器、MOSFET、SiC/GaN 功率器件、控制器和电源模块。它们把设施电力转换为 GPU、CPU、内存、网卡和加速器所需的稳定低压供电。',usCompanies:'MPS/Infineon/TI/onsemi',chinaCompanies:'圣邦微/纳芯微/杰华特/芯朋微',usRoute:'美国及欧洲路线强在高可靠电源管理、功率器件、控制器和服务器级认证。',chinaRoute:'中国路线在 PMIC、MOSFET、模拟芯片和部分 SiC/GaN 器件上加速替代。',compare:'AI 机架功率密度越高，电源管理越从配角变成系统瓶颈。'},
+{id:'n_storage',x:744,y:600,label:'存储 / NAND / SSD',ex:'三星、铠侠、美光、Solidigm',stat:'检查点、RAG、训练数据',cat:'csup',
+ tip:'AI 集群会消耗企业级 SSD 产能，用于训练数据、模型检查点、检索/向量库、日志和推理服务。存储不如 GPU 显眼，但会影响吞吐和集群可用性。',usCompanies:'Samsung/Micron/Solidigm/Western Digital',chinaCompanies:'长江存储/长鑫存储/江波龙/佰维',usRoute:'美国及盟友路线强在企业级 SSD、NAND、控制器生态和云客户认证。',chinaRoute:'中国路线在 NAND、模组和企业级 SSD 国产化上推进，受制于先进工艺和高端控制器。',compare:'AI 不只消耗显存，也消耗大量训练数据、检查点和向量检索存储。'},
+{id:'n_pcb',x:878,y:600,label:'PCB / 连接器',ex:'欣兴、Tripod、Amphenol、TE',stat:'板卡、背板、高速 I/O',cat:'csup',
+ tip:'AI 服务器需要高层数 PCB、HDI 板、重定时器、背板、插座以及高密度电源/高速连接器。该节点连接 ABF 载板、光模块、铜互连、网络和系统组装。',usCompanies:'Amphenol/TE/Unimicron/TTM',chinaCompanies:'深南电路/沪电股份/胜宏科技/立讯精密',usRoute:'美国路线依赖连接器、背板、高速材料和中国台湾高端 PCB 供应链。',chinaRoute:'中国路线在服务器 PCB、连接器、线束和制造规模上强，但高端材料与验证仍关键。',compare:'PCB 与连接器决定信号完整性、供电密度和系统可维护性。'},
+{id:'n_electrical',x:1002,y:600,label:'Electrical 设备',ex:'Eaton、施耐德、西门子、Hitachi Energy',stat:'变压器与开关设备',cat:'csup',bottleneck:true,
+ tip:'变压器、中压开关设备、变电站、UPS、母线槽和工业电池是数据中心的主要约束之一。交付周期可能超过服务器或芯片采购周期。',usCompanies:'Eaton/Schneider/Siemens/Hitachi Energy',chinaCompanies:'特变电工/许继电气/平高电气/正泰',usRoute:'美国及欧洲路线强在变压器、开关设备、UPS、配电和数据中心电气系统集成。',chinaRoute:'中国路线在输配电设备、变压器、开关柜和工程制造上规模巨大。',compare:'电气设备交期常常决定数据中心何时能真正通电。'},
+{id:'n_cooling',x:1126,y:600,label:'液冷',ex:'CoolIT、Vertiv、nVent、Boyd、Ecolab',stat:'冷板、CDU、浸没式冷却',cat:'csup',
+ tip:'芯片直连液冷、冷却液分配单元、冷板、泵、歧管和浸没式系统帮助管理高密度 AI 机架。散热供应如今包括硬件、流体、服务和设施集成。',usCompanies:'CoolIT/Vertiv/nVent/Boyd',chinaCompanies:'英维克/申菱环境/高澜股份/科创新源',usRoute:'美国路线强在 GPU 服务器液冷方案、CDU、冷板和数据中心热管理集成。',chinaRoute:'中国路线在液冷机柜、冷板、CDU、精密空调和工程交付上快速追赶。',compare:'液冷让服务器、机房和运维设计更紧密地耦合在一起。'},
+{id:'n_epc',x:1252,y:600,label:'EPC / 建设劳动力',ex:'Quanta、Argan、Jacobs、电气承包商',stat:'电工也是瓶颈',cat:'csup',
+ tip:'工程、采购、施工、调试和熟练电气劳动力决定 AI 数据中心上线速度。瓶颈往往在施工排期和通电，而不仅是芯片供应。',usCompanies:'Quanta/Jacobs/Fluor/Bechtel',chinaCompanies:'中国建筑/中国电建/中建三局/中国能建',usRoute:'美国路线依赖 EPC、专业电气承包商和数据中心园区施工管理。',chinaRoute:'中国路线具备大型工程建设和电力工程组织能力，但海外合规与本土需求结构不同。',compare:'AI 算力落地速度最终要经过施工、调试、验收和通电。'},
+{id:'n_water',x:1374,y:600,label:'Water & Coolant 系统',ex:'Ecolab、Xylem、威立雅、Chemours',stat:'处理、回用、冷却液化学',cat:'cwat',
+ tip:'取水、回用、闭环处理、腐蚀控制、冷却液化学、排热和废水管理都是 AI 基础设施规划的一部分，尤其在液冷普及后更重要。',usCompanies:'Ecolab/Xylem/Veolia/Chemours',chinaCompanies:'碧水源/北控水务/万华化学/巨化',usRoute:'美国路线强在工业水处理、冷却液化学、过滤和数据中心运维服务。',chinaRoute:'中国路线在水处理工程、化工材料和园区配套上有规模能力。',compare:'水和冷却液系统会影响能效、可靠性、腐蚀风险和选址。'},
+// 终端应用 — bottom row
+{id:'n_edge',x:744,y:735,label:'边缘 AI / 端侧 AI',ex:'高通 Snapdragon、联发科 Dimensity、Apple M 系列',stat:'端侧 AI 市场长期增长',cat:'capp',
+ tip:'边缘 AI 把推理转移到手机、PC、汽车、摄像头、机器人和工业设备上。它创造对 NPU、高效内存、传感器、软件运行时以及本地执行小模型的需求。',usCompanies:'Apple/Qualcomm/Intel/AMD',chinaCompanies:'华为/联发科/瑞芯微/全志',usRoute:'美国路线把 AI 能力推向手机、PC、可穿戴和车载端侧芯片。',chinaRoute:'中国路线在手机 SoC、IoT、国产操作系统和本土应用中推动端侧 AI。',compare:'端侧 AI 减轻云推理压力，但会增加本地芯片、模型压缩和软件适配需求。'},
+{id:'n_robotics',x:1002,y:735,label:'物理 AI / 机器人',ex:'NVIDIA Isaac、Figure、ABB、发那科、KUKA',stat:'机器人与物理世界 AI',cat:'capp',
+ tip:'机器人把 AI 模型连接到传感器、执行器、仿真、边缘计算和工业控制。它同时拉动训练用 GPU、设备端嵌入式处理器，以及车队/机群中的网络和存储需求。',usCompanies:'NVIDIA/Figure/Tesla/Boston Dynamics',chinaCompanies:'宇树/优必选/傅利叶/新松',usRoute:'美国路线强调大模型、仿真平台、GPU 训练和高端机器人系统。',chinaRoute:'中国路线强在供应链、制造成本、硬件迭代和工业/服务机器人落地。',compare:'机器人把 AI 从数据中心拉到真实物理世界，对传感器、控制和边缘算力要求很高。'},
+{id:'n_autov',x:1126,y:735,label:'自动驾驶汽车',ex:'Waymo、Tesla FSD、Mobileye、NVIDIA Drive',stat:'使用定制 AI 芯片 + 云端 AI',cat:'capp',
+ tip:'自动驾驶汽车使用云端算力进行训练和仿真，并使用边缘加速器进行车端推理。该领域把 AI 芯片与传感器、车规认证、安全系统和车队运营连接起来。',usCompanies:'Waymo/Tesla/Mobileye/NVIDIA',chinaCompanies:'华为车 BU/小鹏/理想/地平线',usRoute:'美国路线在 Robotaxi、端到端驾驶、车载芯片和仿真训练上领先。',chinaRoute:'中国路线在智能电动车、城区 NOA、车路协同和本土数据闭环中推进很快。',compare:'自动驾驶同时消耗云端训练算力和车端推理芯片。'},
+{id:'n_software',x:1252,y:735,label:'AI 软件基础设施',ex:'CUDA、ROCm、Kubernetes、向量数据库',stat:'把集群变成服务',cat:'capp',
+ tip:'NEW: AI 软件基础设施把原始算力转换为可用的模型训练和推理能力：编译器、内核、编排、调度器、推理服务器、向量数据库、可观测性和安全层。',usCompanies:'NVIDIA CUDA/Databricks/Anyscale',chinaCompanies:'华为 CANN/百度飞桨/阿里 PAI/昇思',usRoute:'美国路线以 CUDA、云原生调度、MLOps 和推理框架形成强生态锁定。',chinaRoute:'中国路线围绕 CANN、国产框架、模型服务平台和信创环境建立替代软件栈。',compare:'软件生态决定硬件利用率，也决定客户迁移成本。'},
+];
+
+const conns=[
+// Materials → fab chain
+{f:'n1',t:'n9'},{f:'n2',t:'n9'},{f:'n2',t:'n10'},
+{f:'n_inp',t:'n_lite',cls:'opl'},
+{f:'n2',t:'n_lite',cls:'dsl'},
+{f:'n3',t:'n7'},
+{f:'n_mask',t:'n9'},
+{f:'n_abf',t:'n11'},{f:'n_abf',t:'n12'},
+// 设计 → chips
+{f:'n4',t:'n13',cls:'dsl'},{f:'n4',t:'n14',cls:'dsl'},{f:'n4',t:'n15',cls:'dsl'},
+{f:'n5',t:'n13',cls:'dsl'},{f:'n5',t:'n14',cls:'dsl'},
+// 设备 → fab
+{f:'n6',t:'n9',cls:'bnl'},{f:'n7',t:'n9'},{f:'n7',t:'n10'},{f:'n8',t:'n9'},{f:'n8',t:'n10'},
+// Fab → packaging
+{f:'n9',t:'n11',cls:'bnl'},{f:'n10',t:'n11',cls:'bnl'},
+{f:'n9',t:'n14'},
+// Packaging → chips
+{f:'n11',t:'n13',cls:'bnl'},
+{f:'n12',t:'n14'},{f:'n12',t:'n15'},
+// AI chips → 光互连 (CPO)
+{f:'n13',t:'n_lite',cls:'opl'},
+// AI chips → 系统
+{f:'n13',t:'n16'},{f:'n14',t:'n16'},{f:'n15',t:'n16'},{f:'n15',t:'n17'},
+// 光互连 → 系统
+{f:'n_lite',t:'n16',cls:'opl'},{f:'n_lite',t:'n17',cls:'opl'},
+{f:'n_coh',t:'n17',cls:'opl'},{f:'n_coh',t:'n16',cls:'opl'},
+{f:'n_fiber',t:'n17',cls:'opl'},{f:'n_fiber',t:'n16',cls:'opl'},
+// 系统 → Phys Infra (inputs TO systems)
+{f:'n_nuclear',t:'n18',cls:'infl'},
+{f:'n_copper',t:'n16',cls:'infl'},{f:'n_copper',t:'n18',cls:'infl'},
+// Phys Infra → 云
+{f:'n_nuclear',t:'n19',cls:'infl'},
+{f:'n_dcre',t:'n19',cls:'infl'},{f:'n_dcre',t:'n20',cls:'infl'},
+{f:'n_backup',t:'n18',cls:'infl'},{f:'n_backup',t:'n19',cls:'infl'},{f:'n_backup',t:'n_dcre',cls:'infl'},
+// 系统 → 云
+{f:'n16',t:'n19'},{f:'n16',t:'n20'},{f:'n17',t:'n19'},{f:'n18',t:'n19'},
+// Deployment enablers
+{f:'n7',t:'n_pmic',cls:'appl'},{f:'n3',t:'n_pmic',cls:'appl'},{f:'n_pmic',t:'n16',cls:'appl'},{f:'n_pmic',t:'n18',cls:'appl'},
+{f:'n10',t:'n_storage',cls:'appl'},{f:'n13',t:'n_storage',cls:'appl'},{f:'n_storage',t:'n16',cls:'appl'},{f:'n_storage',t:'n19',cls:'appl'},
+{f:'n_abf',t:'n_pcb',cls:'appl'},{f:'n_lite',t:'n_pcb',cls:'opl'},{f:'n_fiber',t:'n_pcb',cls:'opl'},{f:'n_copper',t:'n_pcb',cls:'infl'},{f:'n_pcb',t:'n16',cls:'appl'},{f:'n_pcb',t:'n17',cls:'appl'},
+{f:'n_nuclear',t:'n_electrical',cls:'infl'},{f:'n_copper',t:'n_electrical',cls:'infl'},{f:'n_electrical',t:'n18',cls:'infl'},{f:'n_electrical',t:'n19',cls:'infl'},
+{f:'n_backup',t:'n_electrical',cls:'infl'},
+{f:'n18',t:'n_cooling',cls:'infl'},{f:'n_cooling',t:'n16',cls:'infl'},{f:'n_cooling',t:'n_dcre',cls:'infl'},
+{f:'n_water',t:'n_cooling',cls:'infl'},{f:'n_water',t:'n_dcre',cls:'infl'},
+{f:'n_epc',t:'n_dcre',cls:'infl'},{f:'n_epc',t:'n_electrical',cls:'infl'},{f:'n_epc',t:'n19',cls:'infl'},
+// 云 → AI 模型
+{f:'n19',t:'n21'},{f:'n19',t:'n22'},{f:'n20',t:'n22'},
+// 终端应用
+{f:'n15',t:'n_edge',cls:'appl'},{f:'n14',t:'n_edge',cls:'appl'},
+{f:'n13',t:'n_robotics',cls:'appl'},
+{f:'n21',t:'n_robotics',cls:'appl'},
+{f:'n14',t:'n_autov',cls:'appl'},
+{f:'n19',t:'n_autov',cls:'appl'},
+{f:'n_edge',t:'n_robotics',cls:'appl'},
+{f:'n19',t:'n_software',cls:'appl'},{f:'n20',t:'n_software',cls:'appl'},{f:'n21',t:'n_software',cls:'appl'},{f:'n_software',t:'n_robotics',cls:'appl'},{f:'n_software',t:'n_edge',cls:'appl'},
+];
+
+const colHeaders=[
+  {x:74,l:'原材料'},{x:208,l:'设计'},{x:342,l:'设备'},
+  {x:476,l:'Fabrication'},{x:610,l:'Packaging ⚠',cn:'cbn'},{x:744,l:'AI 芯片'},
+  {x:878,l:'⚡ 光互连',cn:'copt'},{x:1002,l:'系统'},
+  {x:1126,l:'物理基础设施',cn:'cinf'},{x:1252,l:'云'},{x:1374,l:'AI 模型'},
+];
+
+const nMap={};
+nodes.forEach(n=>nMap[n.id]=n);
+const adj={};
+nodes.forEach(n=>adj[n.id]=new Set());
+conns.forEach(c=>{adj[c.f].add(c.t);adj[c.t].add(c.f);});
+
+const mw=document.getElementById('mw');
+const svgEl=document.getElementById('svg');
+const tt=document.getElementById('tt');
+const detailPanel=document.getElementById('detailPanel');
+
+// Deployment enablers divider line
+const div=document.createElement('div');
+div.className='app-divider';
+div.style.top='555px';
+div.style.left='600px';
+div.style.right='20px';
+mw.appendChild(div);
+const dlbl=document.createElement('div');
+dlbl.className='app-label';
+dlbl.textContent='部署赋能环节 ↓';
+dlbl.style.top='542px';
+dlbl.style.left='604px';
+mw.appendChild(dlbl);
+
+// End applications divider line
+const appDiv=document.createElement('div');
+appDiv.className='app-divider';
+appDiv.style.top='690px';
+appDiv.style.left='600px';
+appDiv.style.right='20px';
+mw.appendChild(appDiv);
+const appLbl=document.createElement('div');
+appLbl.className='app-label';
+appLbl.textContent='终端应用 ↓';
+appLbl.style.top='677px';
+appLbl.style.left='604px';
+mw.appendChild(appLbl);
+
+// Flow label
+const ftxt=document.createElementNS('http://www.w3.org/2000/svg','text');
+ftxt.setAttribute('x','730');ftxt.setAttribute('y','22');
+ftxt.setAttribute('text-anchor','middle');ftxt.setAttribute('font-size','8');
+ftxt.setAttribute('fill','rgba(100,116,139,.42)');
+ftxt.setAttribute('font-family','system-ui,sans-serif');
+ftxt.textContent='← 上游  ·  供应链从左向右流动  ·  下游 →';
+svgEl.appendChild(ftxt);
+
+// Column headers
+colHeaders.forEach(h=>{
+  const d=document.createElement('div');
+  d.className='ch '+(h.cn||'');
+  d.textContent=h.l;
+  d.style.left=(h.x-56)+'px';
+  mw.appendChild(d);
+});
+
+// Nodes
+nodes.forEach(n=>{
+  const el=document.createElement('div');
+  el.className=`node ${n.cat}`+(n.bottleneck?' bottleneck':'')+(n.lumentum?' lumentum-node':'');
+  el.id=n.id;
+  el.style.left=(n.x-NW/2)+'px';
+  el.style.top=(n.y-NH/2)+'px';
+  el.innerHTML=`<div class="nl">${n.label}</div><div class="nr"><b>美</b> ${n.usCompanies||n.ex}</div><div class="nr"><b>中</b> ${n.chinaCompanies||'—'}</div><div class="ns">${n.stat}</div>`;
+  el.addEventListener('click',()=>renderDetail(n));
+  el.addEventListener('mouseenter',()=>{
+    document.querySelectorAll('path.link').forEach(p=>{
+      if(p.dataset.f===n.id||p.dataset.t===n.id)p.classList.add('hot');
+    });
+  });
+  el.addEventListener('mousemove',e=>{
+    tt.innerHTML=`<strong>${n.label}</strong><br>${n.tip}`;
+    tt.style.display='block';
+    let lx=e.clientX+14,ly=e.clientY-44;
+    if(lx+240>window.innerWidth)lx=e.clientX-250;
+    if(ly<0)ly=8;
+    tt.style.left=lx+'px';tt.style.top=ly+'px';
+  });
+  el.addEventListener('mouseleave',()=>{
+    document.querySelectorAll('path.link').forEach(p=>p.classList.remove('hot'));
+    tt.style.display='none';
+  });
+  mw.appendChild(el);
+});
+
+function esc(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function renderDetail(n){
+  detailPanel.classList.add('open');
+  detailPanel.innerHTML=`<div class="dp-top"><div><div class="dp-title">${esc(n.label)}</div><div class="dp-cat">${esc(n.stat)}</div></div><button class="dp-close" aria-label="关闭">×</button></div>
+  <div class="dp-sec"><h3>行业作用</h3><p>${esc(n.tip)}</p></div>
+  <div class="dp-sec"><h3>代表企业</h3><div class="dp-comp"><b>美国</b>${esc(n.usCompanies)}</div><div class="dp-comp"><b>中国</b>${esc(n.chinaCompanies)}</div></div>
+  <div class="dp-sec"><h3>美国路线</h3><p>${esc(n.usRoute)}</p></div>
+  <div class="dp-sec"><h3>中国路线</h3><p>${esc(n.chinaRoute)}</p></div>
+  <div class="dp-sec"><h3>对比判断</h3><p>${esc(n.compare)}</p></div>`;
+  detailPanel.querySelector('.dp-close').addEventListener('click',()=>detailPanel.classList.remove('open'));
+}
+
+// SVG connections
+conns.forEach(c=>{
+  const fn=nMap[c.f],tn=nMap[c.t];
+  if(!fn||!tn)return;
+  const x1=fn.x+NW/2,y1=fn.y,x2=tn.x-NW/2,y2=tn.y;
+  // For nodes going downward (app nodes), connect from bottom of source to top of target
+  let d;
+  if(tn.y>560&&fn.y<=560){
+    // connecting from main chain down to app row
+    const sx=fn.x,sy=fn.y+NH/2,ex=tn.x-NW/2,ey=tn.y;
+    const cy=(sy+ey)/2;
+    d=`M ${sx} ${sy} C ${sx} ${cy}, ${ex} ${cy}, ${ex} ${ey}`;
+  } else {
+    const cx=(x1+x2)/2;
+    d=`M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`;
+  }
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d',d);
+  p.dataset.f=c.f;p.dataset.t=c.t;
+  p.setAttribute('class','link'+(c.cls?' '+c.cls:''));
+  svgEl.appendChild(p);
+});
+
+// Drag scroll
+const ms=document.querySelector('.ms');
+let isDown=false,startX,sl;
+ms.addEventListener('mousedown',e=>{isDown=true;startX=e.pageX-ms.offsetLeft;sl=ms.scrollLeft;});
+ms.addEventListener('mouseleave',()=>isDown=false);
+ms.addEventListener('mouseup',()=>isDown=false);
+ms.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();ms.scrollLeft=sl-(e.pageX-ms.offsetLeft-startX);});
+</script>
+</body>
+</html>
