@@ -23,6 +23,7 @@ body{background:#0d0e1a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
 .card:hover{transform:translateY(-1px)}
 .card.dim{opacity:.18;filter:saturate(.3)}
 .card.lit{opacity:1!important;filter:brightness(1.18)}
+.card.selected{outline:2px solid rgba(245,158,11,.95);box-shadow:0 0 0 2px rgba(245,158,11,.18),0 0 22px rgba(245,158,11,.42);z-index:5}
 .card-title{font-size:11.5px;font-weight:700;line-height:1.3;margin-bottom:3px}
 .card-co{font-size:9.5px;color:rgba(255,255,255,.5);line-height:1.5;margin-bottom:6px}
 .tags{display:flex;flex-wrap:wrap;gap:3px}
@@ -71,7 +72,7 @@ body{background:#0d0e1a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
   <span class="badge b-year">2026</span>
   <span class="badge b-new">+新增产业</span>
   <span class="badge b-optical">+光互连层</span>
-  <span class="top-hint">· 悬停高亮连接 · 红色脉冲 = 瓶颈 · 金色脉冲 = 新增节点 · 拖动/滚动查看全图</span>
+  <span class="top-hint">· 悬停预览，点击锁定；再次点击取消 · 红色脉冲 = 瓶颈 · 金色脉冲 = 新增节点 · 拖动/滚动查看全图</span>
   <span class="top-hint" style="margin-left:auto">← 向右滚动查看完整链条 →</span>
 </div>
 
@@ -605,27 +606,41 @@ function drawLines(hov=null){
   });
 }
 
-let hov=null;
+let selectedId=null;
+let hoverId=null;
+function activeId(){return selectedId||hoverId;}
+
+function applyFocus(id=activeId()){
+  document.querySelectorAll('.card').forEach(x=>{
+    const conn=id&&(ADJ[id]?.has(x.id)||x.id===id);
+    x.classList.toggle('lit',!!conn);
+    x.classList.toggle('dim',!!id&&!conn);
+    x.classList.toggle('selected',selectedId===x.id);
+  });
+  drawLines(id);
+}
+
 document.querySelectorAll('.card').forEach(c=>{
   c.addEventListener('mouseenter',()=>{
-    hov=c.id;
-    document.querySelectorAll('.card').forEach(x=>{
-      const conn=ADJ[hov]?.has(x.id)||x.id===hov;
-      x.classList.toggle('lit',conn);
-      x.classList.toggle('dim',!conn);
-    });
-    drawLines(hov);
+    if(selectedId)return;
+    hoverId=c.id;
+    applyFocus();
   });
   c.addEventListener('mouseleave',()=>{
-    hov=null;
-    document.querySelectorAll('.card').forEach(x=>{x.classList.remove('lit','dim');});
-    drawLines(null);
+    if(selectedId)return;
+    hoverId=null;
+    applyFocus();
+  });
+  c.addEventListener('click',()=>{
+    selectedId=selectedId===c.id?null:c.id;
+    hoverId=null;
+    applyFocus();
   });
 });
 
-window.addEventListener('load',()=>setTimeout(()=>drawLines(null),120));
-window.addEventListener('resize',()=>drawLines(hov));
-mo.addEventListener('scroll',()=>drawLines(hov));
+window.addEventListener('load',()=>setTimeout(()=>drawLines(activeId()),120));
+window.addEventListener('resize',()=>drawLines(activeId()));
+mo.addEventListener('scroll',()=>drawLines(activeId()));
 </script>
 </body>
 </html>
