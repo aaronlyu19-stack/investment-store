@@ -1,0 +1,633 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI 与半导体供应链网络图 — 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0e1a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif;overflow:hidden;height:100vh}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,14,26,.96);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.07);padding:9px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top-title{font-size:13px;font-weight:700;letter-spacing:-.2px}
+.badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.b-year{background:#1D4ED8;color:#fff}
+.b-new{background:#D97706;color:#fff}
+.b-optical{background:#0F766E;color:#fff}
+.top-hint{font-size:10px;color:#4B5563;margin-left:4px}
+.map-outer{position:fixed;top:42px;left:0;right:0;bottom:0;overflow-x:auto;overflow-y:auto}
+.map-inner{display:flex;gap:14px;padding:18px 20px 60px;min-height:100%;position:relative;width:max-content;align-items:flex-start}
+#conn-svg{position:absolute;top:0;left:0;pointer-events:none;overflow:visible}
+.col{width:182px;flex-shrink:0}
+.col-hdr{font-size:8.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding-bottom:7px;margin-bottom:9px;border-bottom:1px solid;text-align:center}
+.cards{display:flex;flex-direction:column;gap:7px}
+.card{border-radius:6px;padding:9px 10px 8px;border-left:2.5px solid;cursor:pointer;position:relative;transition:opacity .15s,filter .15s,transform .15s}
+.card:hover{transform:translateY(-1px)}
+.card.dim{opacity:.18;filter:saturate(.3)}
+.card.lit{opacity:1!important;filter:brightness(1.18)}
+.card-title{font-size:11.5px;font-weight:700;line-height:1.3;margin-bottom:3px}
+.card-co{font-size:9.5px;color:rgba(255,255,255,.5);line-height:1.5;margin-bottom:6px}
+.tags{display:flex;flex-wrap:wrap;gap:3px}
+.tag{font-size:8.5px;font-weight:600;padding:1px 6px;border-radius:3px;line-height:1.6}
+.t-geo{background:rgba(245,158,11,.18);color:#FCD34D}
+.t-us{background:rgba(59,130,246,.18);color:#93C5FD}
+.t-cn{background:rgba(34,197,94,.18);color:#6EE7B7}
+.t-risk{background:rgba(239,68,68,.22);color:#FCA5A5}
+.t-moat{background:rgba(168,85,247,.22);color:#D8B4FE}
+.t-hot{background:rgba(239,68,68,.28);color:#FECACA}
+.new-dot{position:absolute;top:-4px;right:-4px;background:#D97706;color:#fff;font-size:7.5px;font-weight:800;padding:1px 5px;border-radius:8px;letter-spacing:.2px}
+@keyframes pr{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}60%{box-shadow:0 0 0 7px rgba(239,68,68,0)}}
+@keyframes pg{0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.55)}60%{box-shadow:0 0 0 8px rgba(217,119,6,0)}}
+.pulse-r{animation:pr 2.2s infinite}
+.pulse-g{animation:pg 2.8s infinite}
+/* per-column themes */
+.c-raw .col-hdr{color:#F59E0B;border-color:rgba(245,158,11,.3)}
+.c-raw .card{background:rgba(92,40,5,.3);border-color:rgba(245,158,11,.45)}
+.c-mat .col-hdr{color:#FB923C;border-color:rgba(251,146,60,.3)}
+.c-mat .card{background:rgba(120,40,10,.28);border-color:rgba(251,146,60,.45)}
+.c-des .col-hdr{color:#A78BFA;border-color:rgba(167,139,250,.3)}
+.c-des .card{background:rgba(76,26,130,.28);border-color:rgba(167,139,250,.45)}
+.c-eqp .col-hdr{color:#60A5FA;border-color:rgba(96,165,250,.3)}
+.c-eqp .card{background:rgba(23,60,180,.22);border-color:rgba(96,165,250,.45)}
+.c-fab .col-hdr{color:#34D399;border-color:rgba(52,211,153,.3)}
+.c-fab .card{background:rgba(5,70,50,.28);border-color:rgba(52,211,153,.45)}
+.c-chip .col-hdr{color:#C084FC;border-color:rgba(192,132,252,.3)}
+.c-chip .card{background:rgba(68,22,140,.28);border-color:rgba(192,132,252,.45)}
+.c-sys .col-hdr{color:#2DD4BF;border-color:rgba(45,212,191,.3)}
+.c-sys .card{background:rgba(12,80,74,.26);border-color:rgba(45,212,191,.45)}
+.c-inf .col-hdr{color:#38BDF8;border-color:rgba(56,189,248,.3)}
+.c-inf .card{background:rgba(5,70,110,.26);border-color:rgba(56,189,248,.45)}
+.c-plt .col-hdr{color:#4ADE80;border-color:rgba(74,222,128,.3)}
+.c-plt .card{background:rgba(10,68,34,.26);border-color:rgba(74,222,128,.45)}
+.c-app .col-hdr{color:#FBA370;border-color:rgba(251,163,112,.3)}
+.c-app .card{background:rgba(110,38,10,.24);border-color:rgba(251,163,112,.45)}
+.legend{position:fixed;bottom:10px;right:14px;background:rgba(13,14,26,.94);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:8px 12px;font-size:9.5px;color:#6B7280;display:flex;flex-direction:column;gap:4px;z-index:200}
+.li{display:flex;align-items:center;gap:6px}
+.ld{width:8px;height:8px;border-radius:50%}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="top-title">🔬 AI 与半导体供应链网络图</span>
+  <span class="badge b-year">2026</span>
+  <span class="badge b-new">+新增产业</span>
+  <span class="badge b-optical">+光互连层</span>
+  <span class="top-hint">· 悬停高亮连接 · 红色脉冲 = 瓶颈 · 金色脉冲 = 新增节点 · 拖动/滚动查看全图</span>
+  <span class="top-hint" style="margin-left:auto">← 向右滚动查看完整链条 →</span>
+</div>
+
+<div class="map-outer" id="mo">
+<div class="map-inner" id="mi">
+<svg id="conn-svg"></svg>
+
+<!-- RAW MATERIALS -->
+<div class="col c-raw">
+  <div class="col-hdr">原材料</div>
+  <div class="cards">
+    <div class="card" id="polysi">
+      <div class="card-title">硅 / 多晶硅</div>
+      <div class="card-co">Wacker Chemie · Hemlock Semiconductor · 协鑫科技 · 大全能源</div>
+      <div class="tags"><span class="tag t-geo">中/美/德供应</span></div>
+    </div>
+    <div class="card pulse-g" id="sp_gas">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">特种气体</div>
+      <div class="card-co">Air Products · Linde · SK Materials（韩）· 昭和电工 · 金宏气体</div>
+      <div class="tags"><span class="tag t-risk">NF3、WF6、HF 关键</span></div>
+    </div>
+    <div class="card pulse-g" id="upw">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">超纯水</div>
+      <div class="card-co">栗田工业（日）· Evoqua / Xylem · 威立雅 · 苏伊士</div>
+      <div class="tags"><span class="tag t-geo">单座晶圆厂每日百万加仑级</span></div>
+    </div>
+    <div class="card pulse-g" id="rare_e">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">稀土金属</div>
+      <div class="card-co">北方稀土 · MP Materials（美）· Lynas（澳）· Energy Fuels</div>
+      <div class="tags"><span class="tag t-risk">中国控制 60%+</span></div>
+    </div>
+    <div class="card pulse-g" id="ga_ge">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">镓与锗</div>
+      <div class="card-co">驰宏锌锗 · 云南临沧 · Vital Metals</div>
+      <div class="tags"><span class="tag t-risk">中国 2023 年起出口管制</span></div>
+    </div>
+    <div class="card pulse-g" id="fluor">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">含氟化合物</div>
+      <div class="card-co">多氟多 · Stella Chemifa（日）· Mexichem Fluor</div>
+      <div class="tags"><span class="tag t-cn">中国供应占优</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIALS -->
+<div class="col c-mat">
+  <div class="col-hdr">材料与化学品</div>
+  <div class="cards">
+    <div class="card" id="si_wafer">
+      <div class="card-title">硅晶圆</div>
+      <div class="card-co">信越化学 · SUMCO · Siltronic · SK Siltron · 沪硅产业</div>
+      <div class="tags"><span class="tag t-geo">日本占全球 60%+</span></div>
+    </div>
+    <div class="card" id="photores">
+      <div class="card-title">光刻胶与 EUV 化学品</div>
+      <div class="card-co">JSR（日本政府控股）· 东京应化 · 信越化学 · 默克</div>
+      <div class="tags"><span class="tag t-moat">全球仅 2–3 家关键供应商</span></div>
+    </div>
+    <div class="card pulse-g" id="abf">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">ABF 载板</div>
+      <div class="card-co">Ibiden（日）· Shinko Electric · 欣兴电子（台）· 臻鼎科技</div>
+      <div class="tags"><span class="tag t-hot">⚠ GPU 封装瓶颈</span><span class="tag t-moat">Ibiden near-monopoly</span></div>
+    </div>
+    <div class="card pulse-g" id="cmp_sl">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">CMP 抛光液与抛光垫</div>
+      <div class="card-co">CMC Materials · Fujimi（日）· AGC · 安集科技</div>
+      <div class="tags"><span class="tag t-geo">按晶圆持续消耗</span></div>
+    </div>
+    <div class="card pulse-g" id="pmask">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">光掩模 / EUV 掩模坯</div>
+      <div class="card-co">HOYA（EUV 掩模坯强势供应商，日）· Toppan Photomasks · DNP · Photronics</div>
+      <div class="tags"><span class="tag t-moat">HOYA EUV 掩模坯强势垄断</span></div>
+    </div>
+    <div class="card pulse-g" id="quartz">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">石英与陶瓷</div>
+      <div class="card-co">Momentive · Ferrotec（日）· Coorstek · 京瓷（日）· Shin-Etsu Quartz</div>
+      <div class="tags"><span class="tag t-geo">腔体耗材</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DESIGN -->
+<div class="col c-des">
+  <div class="col-hdr">设计与 IP</div>
+  <div class="cards">
+    <div class="card" id="eda">
+      <div class="card-title">EDA 软件</div>
+      <div class="card-co">Synopsys · Cadence Design 系统 · Siemens EDA (Mentor)</div>
+      <div class="tags"><span class="tag t-us">美国控制全球 68%</span><span class="tag t-moat">双寡头壁垒</span></div>
+    </div>
+    <div class="card" id="arm_ip">
+      <div class="card-title">IP 核 / Arm</div>
+      <div class="card-co">Arm Holdings（软银/NYSE）· Imagination · CEVA · Rambus · 芯原股份</div>
+      <div class="tags"><span class="tag t-moat">授权几乎所有芯片</span></div>
+    </div>
+    <div class="card pulse-g" id="asic_ds">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">定制 ASIC 设计服务</div>
+      <div class="card-co">世芯电子（台）· 创意电子（台）· 智原科技 · 芯原股份</div>
+      <div class="tags"><span class="tag t-geo">云巨头定制芯片</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- EQUIPMENT -->
+<div class="col c-eqp">
+  <div class="col-hdr">半导体设备</div>
+  <div class="cards">
+    <div class="card pulse-r" id="litho">
+      <div class="card-title">光刻设备（EUV）</div>
+      <div class="card-co">ASML — 全球 EUV 垄断 · Nikon · Canon · 上海微电子（中国，28nm）</div>
+      <div class="tags"><span class="tag t-hot">每月约 1–2 台 EUV</span><span class="tag t-moat">Absolute monopoly</span></div>
+    </div>
+    <div class="card" id="etch">
+      <div class="card-title">刻蚀设备</div>
+      <div class="card-co">Lam Research · 东京电子（TEL）· Hitachi · 中微公司 · 北方华创</div>
+      <div class="tags"><span class="tag t-cn">中国国产替代推进（中微）</span></div>
+    </div>
+    <div class="card" id="cvd">
+      <div class="card-title">CVD / ALD 沉积</div>
+      <div class="card-co">应用材料 · Lam Research · ASM International · Kokusai Electric · 北方华创</div>
+      <div class="tags"><span class="tag t-moat">ASMI ALD 接近垄断</span></div>
+    </div>
+    <div class="card" id="kla">
+      <div class="card-title">量测与检测</div>
+      <div class="card-co">KLA · Onto Innovation · Lasertec（日）· Nanometrics</div>
+      <div class="tags"><span class="tag t-us">美国过程控制领先</span></div>
+    </div>
+    <div class="card pulse-g" id="ion_imp">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">离子注入设备</div>
+      <div class="card-co">Axcelis Technologies · 应用材料（Varian）· 住友重机</div>
+      <div class="tags"><span class="tag t-us">CHIPS 法案纯受益方向</span></div>
+    </div>
+    <div class="card pulse-g" id="enteg">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">晶圆搬运与污染控制</div>
+      <div class="card-co">Entegris · Brooks Automation / Azenta · Miraial（日）</div>
+      <div class="tags"><span class="tag t-us">关键材料公司</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FABRICATION -->
+<div class="col c-fab">
+  <div class="col-hdr">制造与封测</div>
+  <div class="cards">
+    <div class="card pulse-r" id="adv_f">
+      <div class="card-title">逻辑晶圆代工</div>
+      <div class="card-co">台积电（2nm/3nm）· Samsung Foundry · Intel 18A</div>
+      <div class="tags"><span class="tag t-hot">3nm 最紧缺</span><span class="tag t-geo">TW/KR/US</span></div>
+    </div>
+    <div class="card" id="mat_f">
+      <div class="card-title">成熟制程代工（28nm+）</div>
+      <div class="card-co">中芯国际 · 华虹公司 · GlobalFoundries · 联电 · Tower Semiconductor</div>
+      <div class="tags"><span class="tag t-cn">中芯国际 = 中国国家级龙头</span></div>
+    </div>
+    <div class="card" id="mem_f">
+      <div class="card-title">存储晶圆厂</div>
+      <div class="card-co">三星 · SK 海力士 · 美光 · 铠侠 · 长江存储 · 长鑫存储</div>
+      <div class="tags"><span class="tag t-cn">长江/长鑫面对美国制裁</span></div>
+    </div>
+    <div class="card pulse-r" id="cowos">
+      <div class="card-title">先进封装（CoWoS）</div>
+      <div class="card-co">台积电 CoWoS / SoIC · Samsung H-Cube · 日月光 · Amkor · 矽品</div>
+      <div class="tags"><span class="tag t-hot">⚠ 当前 AI 芯片第一瓶颈</span></div>
+    </div>
+    <div class="card" id="osat">
+      <div class="card-title">OSAT / 组装与测试</div>
+      <div class="card-co">日月光（台）· Amkor（美）· 力成 · 长电科技 · 通富微电</div>
+      <div class="tags"><span class="tag t-geo">台/中/美后道环节</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHIPS -->
+<div class="col c-chip">
+  <div class="col-hdr">芯片与组件</div>
+  <div class="cards">
+    <div class="card pulse-r" id="ai_gpu">
+      <div class="card-title">AI GPU / 加速器</div>
+      <div class="card-co">NVIDIA H100/B200 · AMD MI300X · Intel Gaudi3 · Google TPU · AWS Trainium</div>
+      <div class="tags"><span class="tag t-us">美国控制 AI 算力</span><span class="tag t-hot">Demand >> Supply</span></div>
+    </div>
+    <div class="card pulse-r" id="hbm">
+      <div class="card-title">HBM 高带宽存储</div>
+      <div class="card-co">SK 海力士（60%+）· 三星 · 美光 · 长鑫存储（早期）</div>
+      <div class="tags"><span class="tag t-hot">⚠ GPU 关键约束</span><span class="tag t-geo">KR dominant</span></div>
+    </div>
+    <div class="card" id="nand_dr">
+      <div class="card-title">NAND 与 DRAM</div>
+      <div class="card-co">三星 · SK 海力士 · 美光 · 铠侠 · 长江存储</div>
+      <div class="tags"><span class="tag t-geo">韩/美/中市场</span></div>
+    </div>
+    <div class="card" id="net_asic">
+      <div class="card-title">网络 ASIC</div>
+      <div class="card-co">博通（Tomahawk/Jericho）· Marvell · Cisco Silicon One</div>
+      <div class="tags"><span class="tag t-moat">博通数据中心强势垄断</span></div>
+    </div>
+    <div class="card" id="cpu_sv">
+      <div class="card-title">服务器 CPU</div>
+      <div class="card-co">Intel Xeon · AMD EPYC · Arm 架构 · 海光信息</div>
+      <div class="tags"><span class="tag t-us">AMD EPYC 份额提升</span></div>
+    </div>
+    <div class="card" id="edge_ai">
+      <div class="card-title">边缘 AI / NPU</div>
+      <div class="card-co">高通 Snapdragon X · Apple M 系列 · 联发科 · 晶晨股份</div>
+      <div class="tags"><span class="tag t-geo">AI PC 升级周期</span></div>
+    </div>
+    <div class="card pulse-g" id="pmic">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">电源管理 IC</div>
+      <div class="card-co">Monolithic Power（MPWR）· 德州仪器 · 英飞凌 · 瑞萨</div>
+      <div class="tags"><span class="tag t-us">MPWR = 高质量成长股</span></div>
+    </div>
+    <div class="card pulse-g" id="sic_gan">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">SiC / GaN 功率器件</div>
+      <div class="card-co">Wolfspeed（美）· 英飞凌（德）· onsemi · 意法半导体 · ROHM（日）</div>
+      <div class="tags"><span class="tag t-us">Wolfspeed = SiC 纯标的</span></div>
+    </div>
+    <div class="card pulse-g" id="si_ph">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">硅光 / 共封装光学</div>
+      <div class="card-co">Intel（IFS）· Cisco · Marvell · Coherent · GlobalFoundries</div>
+      <div class="tags"><span class="tag t-geo">替代可插拔光模块</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SYSTEMS -->
+<div class="col c-sys">
+  <div class="col-hdr">系统</div>
+  <div class="cards">
+    <div class="card" id="ai_svr">
+      <div class="card-title">AI 服务器与机架</div>
+      <div class="card-co">Supermicro · Dell PowerEdge · HPE · 浪潮信息 · 纬创（台）</div>
+      <div class="tags"><span class="tag t-us">Supermicro = AI 服务器纯标的</span></div>
+    </div>
+    <div class="card pulse-g" id="ib_net">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">InfiniBand / NVLink</div>
+      <div class="card-co">NVIDIA InfiniBand（Mellanox）· Cornelis Networks · Intel Omni-Path（HPE）</div>
+      <div class="tags"><span class="tag t-moat">NVIDIA 集群互连强壁垒</span></div>
+    </div>
+    <div class="card pulse-g" id="opt_xcvr">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">光模块 / 光收发器</div>
+      <div class="card-co">Coherent · Lumentum · 中际旭创 · 海信宽带 · 光迅科技</div>
+      <div class="tags"><span class="tag t-geo">AI 网络需要 400G/800G</span></div>
+    </div>
+    <div class="card pulse-g" id="pcb_bd">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">PCB 与高密度板</div>
+      <div class="card-co">TTM Technologies · 健鼎（台）· 臻鼎科技 · Ibiden（日）</div>
+      <div class="tags"><span class="tag t-cn">中/台/日量产领先</span></div>
+    </div>
+    <div class="card pulse-g" id="liq_cool">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">Liquid Cooling 系统</div>
+      <div class="card-co">Vertiv · CoolIT 系统 · Modine Manufacturing · Asetek · nVent · Stulz</div>
+      <div class="tags"><span class="tag t-hot">单 GPU 300–700W → 液冷趋于必需</span></div>
+    </div>
+    <div class="card pulse-g" id="psu_sys">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">电源与电力转换</div>
+      <div class="card-co">台达电子（台）· 光宝 · Artesyn（Bel Fuse）· 康舒 · 村田</div>
+      <div class="tags"><span class="tag t-geo">48V DC 架构转变</span></div>
+    </div>
+    <div class="card" id="storage">
+      <div class="card-title">企业级存储</div>
+      <div class="card-co">Pure Storage · NetApp · 西部数据 · 希捷 · Vast Data</div>
+      <div class="tags"><span class="tag t-us">PB 级 AI 数据集</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- INFRASTRUCTURE -->
+<div class="col c-inf">
+  <div class="col-hdr">基础设施</div>
+  <div class="cards">
+    <div class="card" id="hscaler">
+      <div class="card-title">超大规模云</div>
+      <div class="card-co">AWS · Azure · GCP · 阿里云 · 腾讯云 · 字节跳动</div>
+      <div class="tags"><span class="tag t-us">每年 1000 亿美元+资本开支</span></div>
+    </div>
+    <div class="card" id="colo">
+      <div class="card-title">数据中心托管</div>
+      <div class="card-co">Equinix · Digital Realty · 万国数据 · Iron Mountain DC</div>
+      <div class="tags"><span class="tag t-us">NNN 模式 = 稳定现金流</span></div>
+    </div>
+    <div class="card pulse-r" id="dc_pwr">
+      <div class="card-title">DC Power 系统</div>
+      <div class="card-co">Vertiv · Eaton · 施耐德电气 · ABB · 台达电子</div>
+      <div class="tags"><span class="tag t-hot">⚠ 数据中心扩张第一瓶颈</span></div>
+    </div>
+    <div class="card" id="dc_net">
+      <div class="card-title">数据中心网络</div>
+      <div class="card-co">Arista Networks · Cisco · Juniper（HPE）· Ciena</div>
+      <div class="tags"><span class="tag t-us">Arista 受益云巨头</span></div>
+    </div>
+    <div class="card pulse-g" id="nuclear">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">核能</div>
+      <div class="card-co">Constellation Energy · Vistra · Talen Energy · NuScale（SMR）· Oklo</div>
+      <div class="tags"><span class="tag t-us">云巨头签署核电购电协议</span></div>
+    </div>
+    <div class="card" id="renew">
+      <div class="card-title">可再生能源</div>
+      <div class="card-co">NextEra Energy · AES · First Solar · Vestas · Ørsted</div>
+      <div class="tags"><span class="tag t-geo">数据中心清洁电力需求激增</span></div>
+    </div>
+    <div class="card pulse-g" id="fiber">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">光纤网络</div>
+      <div class="card-co">Corning · Prysmian（意）· CommScope · 住友电工 · 长飞光纤</div>
+      <div class="tags"><span class="tag t-geo">AI 带来带宽需求激增</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- AI PLATFORM -->
+<div class="col c-plt">
+  <div class="col-hdr">AI 平台</div>
+  <div class="cards">
+    <div class="card" id="fnd_mdl">
+      <div class="card-title">基础模型</div>
+      <div class="card-co">OpenAI · Anthropic · Google DeepMind · Meta Llama · 百度文心 · 零一万物</div>
+      <div class="tags"><span class="tag t-us">赢家通吃倾向</span></div>
+    </div>
+    <div class="card" id="cloud_ai">
+      <div class="card-title">云 AI 平台</div>
+      <div class="card-co">AWS SageMaker · Azure ML · GCP Vertex AI · 阿里 PAI</div>
+      <div class="tags"><span class="tag t-us">Azure 领先企业 AI</span></div>
+    </div>
+    <div class="card" id="data_inf">
+      <div class="card-title">Data 基础设施</div>
+      <div class="card-co">Snowflake · Databricks · Palantir AIP · Cloudera · dbt Labs</div>
+      <div class="tags"><span class="tag t-us">数据 = AI 关键输入</span></div>
+    </div>
+    <div class="card" id="mlops">
+      <div class="card-title">MLOps / 数据标注与规模化</div>
+      <div class="card-co">Weights & Biases · MLflow · Scale AI · DataRobot</div>
+      <div class="tags"><span class="tag t-us">Scale AI 数据壁垒</span></div>
+    </div>
+    <div class="card pulse-g" id="vect_db">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">向量数据库</div>
+      <div class="card-co">Pinecone · Weaviate · Milvus / Zilliz · Chroma · pgvector</div>
+      <div class="tags"><span class="tag t-geo">RAG 基础设施关键层</span></div>
+    </div>
+    <div class="card pulse-g" id="infer_pl">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">AI 推理平台</div>
+      <div class="card-co">Groq（LPU）· Cerebras · SambaNova · Together AI · Fireworks AI</div>
+      <div class="tags"><span class="tag t-us">推理 = 最大 AI 工作负载</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- APPLICATIONS -->
+<div class="col c-app">
+  <div class="col-hdr">应用</div>
+  <div class="cards">
+    <div class="card" id="ent_ai">
+      <div class="card-title">企业 AI / Copilot</div>
+      <div class="card-co">Microsoft Copilot 365 · Salesforce · ServiceNow · SAP AI</div>
+      <div class="tags"><span class="tag t-us">经常性收入顺风</span></div>
+    </div>
+    <div class="card" id="auto_v">
+      <div class="card-title">自动驾驶</div>
+      <div class="card-co">Waymo · Tesla FSD · Mobileye · NVIDIA DRIVE · 百度 Apollo</div>
+      <div class="tags"><span class="tag t-geo">单车芯片含量高</span></div>
+    </div>
+    <div class="card pulse-g" id="health_ai">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">医疗 AI</div>
+      <div class="card-co">Recursion Pharma · Tempus AI · PathAI · 英矽智能 · NVIDIA Clara</div>
+      <div class="tags"><span class="tag t-us">AI 药物发现仍在早期</span></div>
+    </div>
+    <div class="card pulse-g" id="indus">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">工业自动化</div>
+      <div class="card-co">发那科（日）· ABB · 安川（日）· Cognex · Keyence（日）· Rockwell</div>
+      <div class="tags"><span class="tag t-geo">Keyence 55%+ 经营利润率</span></div>
+    </div>
+    <div class="card" id="cons_ai">
+      <div class="card-title">消费级 AI 设备</div>
+      <div class="card-co">Apple · Samsung · Qualcomm AI PC · Google Pixel · 小米</div>
+      <div class="tags"><span class="tag t-geo">AI PC 升级周期</span></div>
+    </div>
+    <div class="card" id="def_ai">
+      <div class="card-title">国防 AI</div>
+      <div class="card-co">Palantir · Anduril · Shield AI · NVIDIA 国防项目</div>
+      <div class="tags"><span class="tag t-us">政府 AI 支出上升</span></div>
+    </div>
+    <div class="card" id="gen_ai">
+      <div class="card-title">生成式 AI 内容</div>
+      <div class="card-co">OpenAI Sora · Adobe Firefly · Runway ML · Stability AI</div>
+      <div class="tags"><span class="tag t-geo">AI 视频放大 GPU 需求</span></div>
+    </div>
+    <div class="card pulse-g" id="dig_twin">
+      <div class="new-dot">NEW</div>
+      <div class="card-title">数字孪生与仿真</div>
+      <div class="card-co">NVIDIA Omniverse · Siemens Digital · Ansys · Dassault Systèmes</div>
+      <div class="tags"><span class="tag t-us">GPU 密集型平台机会</span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end map-inner -->
+</div><!-- end map-outer -->
+
+<div class="legend">
+  <div class="li"><div class="ld" style="background:rgba(239,68,68,.8)"></div>红色脉冲 = 瓶颈</div>
+  <div class="li"><div class="ld" style="background:#D97706"></div>金色脉冲 = 新增产业</div>
+  <div class="li"><div class="ld" style="background:rgba(245,158,11,.7);border-radius:2px"></div>连线 = 供应链连接</div>
+  <div style="color:#4B5563;margin-top:2px;font-size:9px">悬停节点高亮连接</div>
+</div>
+
+<script>
+const EDGES=[
+  ['polysi','si_wafer'],['polysi','sp_gas'],
+  ['sp_gas','photores'],['sp_gas','etch'],['sp_gas','adv_f'],
+  ['upw','adv_f'],['upw','mat_f'],
+  ['rare_e','litho'],['rare_e','cvd'],
+  ['ga_ge','sp_gas'],['ga_ge','fiber'],
+  ['fluor','photores'],['fluor','etch'],
+  ['si_wafer','litho'],['si_wafer','adv_f'],['si_wafer','mat_f'],['si_wafer','mem_f'],
+  ['photores','litho'],
+  ['abf','cowos'],['abf','pcb_bd'],
+  ['cmp_sl','adv_f'],['cmp_sl','mat_f'],
+  ['pmask','litho'],
+  ['quartz','litho'],['quartz','etch'],['quartz','cvd'],
+  ['eda','ai_gpu'],['eda','cpu_sv'],['eda','net_asic'],
+  ['arm_ip','edge_ai'],['arm_ip','cpu_sv'],['arm_ip','ai_gpu'],
+  ['asic_ds','adv_f'],['asic_ds','ai_gpu'],
+  ['litho','adv_f'],['litho','mat_f'],
+  ['etch','adv_f'],['etch','mat_f'],['etch','mem_f'],
+  ['cvd','adv_f'],['cvd','mat_f'],['cvd','mem_f'],
+  ['kla','adv_f'],['kla','mat_f'],['kla','mem_f'],
+  ['ion_imp','adv_f'],['ion_imp','mat_f'],
+  ['enteg','adv_f'],['enteg','mat_f'],
+  ['adv_f','ai_gpu'],['adv_f','cpu_sv'],['adv_f','net_asic'],['adv_f','edge_ai'],['adv_f','si_ph'],
+  ['mat_f','pmic'],['mat_f','sic_gan'],
+  ['mem_f','hbm'],['mem_f','nand_dr'],
+  ['cowos','ai_gpu'],['cowos','hbm'],['cowos','cpu_sv'],
+  ['osat','edge_ai'],['osat','pmic'],
+  ['hbm','ai_gpu'],
+  ['ai_gpu','ai_svr'],
+  ['cpu_sv','ai_svr'],
+  ['nand_dr','storage'],['nand_dr','ai_svr'],
+  ['net_asic','dc_net'],['net_asic','ai_svr'],
+  ['edge_ai','cons_ai'],['edge_ai','auto_v'],
+  ['pmic','ai_svr'],['pmic','cons_ai'],
+  ['sic_gan','dc_pwr'],['sic_gan','psu_sys'],
+  ['si_ph','opt_xcvr'],['si_ph','dc_net'],
+  ['ib_net','ai_svr'],['ib_net','hscaler'],
+  ['opt_xcvr','dc_net'],['opt_xcvr','hscaler'],
+  ['pcb_bd','ai_svr'],
+  ['liq_cool','ai_svr'],['liq_cool','hscaler'],
+  ['psu_sys','ai_svr'],['psu_sys','dc_pwr'],
+  ['storage','hscaler'],
+  ['ai_svr','hscaler'],['ai_svr','colo'],
+  ['dc_pwr','hscaler'],['dc_pwr','colo'],
+  ['dc_net','hscaler'],
+  ['nuclear','dc_pwr'],
+  ['renew','dc_pwr'],
+  ['fiber','hscaler'],['fiber','dc_net'],
+  ['colo','hscaler'],
+  ['hscaler','fnd_mdl'],['hscaler','cloud_ai'],
+  ['cloud_ai','fnd_mdl'],['cloud_ai','data_inf'],
+  ['data_inf','fnd_mdl'],['data_inf','mlops'],
+  ['vect_db','cloud_ai'],['vect_db','infer_pl'],
+  ['infer_pl','cloud_ai'],['infer_pl','ent_ai'],
+  ['fnd_mdl','ent_ai'],['fnd_mdl','health_ai'],['fnd_mdl','def_ai'],['fnd_mdl','gen_ai'],
+  ['cloud_ai','ent_ai'],['cloud_ai','indus'],['cloud_ai','auto_v'],
+  ['infer_pl','cons_ai'],
+];
+
+// adjacency for hover
+const ADJ={};
+EDGES.forEach(([a,b])=>{
+  if(!ADJ[a])ADJ[a]=new Set();
+  if(!ADJ[b])ADJ[b]=new Set();
+  ADJ[a].add(b); ADJ[b].add(a);
+});
+
+const svg=document.getElementById('conn-svg');
+const mi=document.getElementById('mi');
+const mo=document.getElementById('mo');
+
+function cardCenter(el){
+  const mr=mi.getBoundingClientRect();
+  const er=el.getBoundingClientRect();
+  const sl=mo.scrollLeft, st=mo.scrollTop;
+  const x=er.left-mr.left+sl;
+  const y=er.top-mr.top+st;
+  return{cx:x+er.width/2, cy:y+er.height/2,
+         rx:x+er.width,   lx:x,
+         ty:y,             by:y+er.height};
+}
+
+function drawLines(hov=null){
+  svg.setAttribute('width',mi.scrollWidth);
+  svg.setAttribute('height',mi.scrollHeight);
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  EDGES.forEach(([a,b])=>{
+    const ea=document.getElementById(a), eb=document.getElementById(b);
+    if(!ea||!eb)return;
+    const pa=cardCenter(ea), pb=cardCenter(eb);
+    const x1=pa.rx, y1=pa.cy, x2=pb.lx, y2=pb.cy;
+    const dx=Math.abs(x2-x1);
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',`M${x1} ${y1} C${x1+dx*.48} ${y1},${x2-dx*.48} ${y2},${x2} ${y2}`);
+    path.setAttribute('fill','none');
+    const hl=hov&&(a===hov||b===hov);
+    const any=hov!==null;
+    path.setAttribute('stroke', hl?'rgba(245,158,11,.82)':any?'rgba(255,255,255,.03)':'rgba(255,255,255,.11)');
+    path.setAttribute('stroke-width', hl?'1.9':any?'0.6':'0.8');
+    path.setAttribute('stroke-linecap','round');
+    svg.appendChild(path);
+  });
+}
+
+let hov=null;
+document.querySelectorAll('.card').forEach(c=>{
+  c.addEventListener('mouseenter',()=>{
+    hov=c.id;
+    document.querySelectorAll('.card').forEach(x=>{
+      const conn=ADJ[hov]?.has(x.id)||x.id===hov;
+      x.classList.toggle('lit',conn);
+      x.classList.toggle('dim',!conn);
+    });
+    drawLines(hov);
+  });
+  c.addEventListener('mouseleave',()=>{
+    hov=null;
+    document.querySelectorAll('.card').forEach(x=>{x.classList.remove('lit','dim');});
+    drawLines(null);
+  });
+});
+
+window.addEventListener('load',()=>setTimeout(()=>drawLines(null),120));
+window.addEventListener('resize',()=>drawLines(hov));
+mo.addEventListener('scroll',()=>drawLines(hov));
+</script>
+</body>
+</html>
+
