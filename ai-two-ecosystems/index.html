@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 双 AI 体系供应链网络图</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23080a12'/%3E%3Cpath d='M8 22 14 8h4l6 14h-4l-1.1-3h-5.8L12 22H8Zm6.2-6.1h3.6L16 10.8l-1.8 5.1Z' fill='%235ea8ff'/%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080a12;
+  --panel:#101421;
+  --panel-2:#151a28;
+  --text:#f5f7fb;
+  --muted:#aab2c5;
+  --soft:#6e7891;
+  --line:rgba(255,255,255,.1);
+  --us:#5ea8ff;
+  --us-2:#1e6bd6;
+  --cn:#ff6b62;
+  --cn-2:#c6312b;
+  --shared:#f6b84a;
+  --gold:#f7c948;
+  --danger:#ff4d5e;
+}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(circle at 16% 8%,rgba(94,168,255,.12),transparent 26%),
+    radial-gradient(circle at 78% 18%,rgba(255,107,98,.10),transparent 28%),
+    linear-gradient(180deg,#080a12 0%,#0a0d18 100%);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",Arial,sans-serif;
+  overflow:hidden;
+}
+.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  min-height:64px;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:12px 18px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(8,10,18,.95);
+  backdrop-filter:blur(14px);
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:300px}
+.brand-mark{
+  width:30px;
+  height:30px;
+  border-radius:7px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,rgba(94,168,255,.95),rgba(255,107,98,.92));
+  color:#fff;
+  font-size:17px;
+  font-weight:900;
+}
+h1{font-size:20px;line-height:1.15;letter-spacing:0;font-weight:900}
+.year{
+  padding:5px 9px;
+  border-radius:6px;
+  background:#194fc3;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+.hint{
+  margin-left:auto;
+  color:#d9e4ff;
+  background:rgba(94,168,255,.11);
+  border:1px solid rgba(94,168,255,.22);
+  border-radius:7px;
+  padding:7px 10px;
+  font-size:12px;
+  white-space:nowrap;
+}
+.old-link{
+  color:#f7d88a;
+  text-decoration:none;
+  border:1px solid rgba(247,200,72,.25);
+  border-radius:7px;
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:800;
+}
+.page{
+  position:fixed;
+  top:64px;
+  left:0;
+  right:0;
+  bottom:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+}
+.page.has-details{grid-template-columns:minmax(0,1fr) 420px}
+.map-shell{
+  position:relative;
+  min-width:0;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.map-scroll{
+  position:absolute;
+  inset:0;
+  overflow:auto;
+  scrollbar-color:rgba(255,255,255,.35) rgba(255,255,255,.07);
+  scrollbar-width:thin;
+}
+.map-inner{
+  position:relative;
+  width:max-content;
+  min-width:1900px;
+  min-height:1430px;
+  padding:26px 34px 34px 48px;
+}
+#links{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  overflow:visible;
+}
+.map-grid{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(7,250px);
+  gap:18px;
+  align-items:start;
+}
+.layer-col{
+  display:grid;
+  grid-template-rows:40px 340px 560px 400px;
+  gap:12px;
+}
+.layer-title{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#dfe7ff;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:0;
+  border-radius:7px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.045);
+}
+.lane{
+  position:relative;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.075);
+  padding:28px 8px 8px;
+  overflow:visible;
+}
+.lane::before{
+  content:attr(data-label);
+  position:absolute;
+  top:8px;
+  left:10px;
+  color:rgba(255,255,255,.72);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.3px;
+}
+.lane-us{background:linear-gradient(180deg,rgba(42,91,173,.22),rgba(24,45,84,.16));border-color:rgba(94,168,255,.18)}
+.lane-shared{background:linear-gradient(180deg,rgba(246,184,74,.14),rgba(122,91,28,.08));border-color:rgba(246,184,74,.22)}
+.lane-china{background:linear-gradient(180deg,rgba(183,49,43,.20),rgba(82,24,23,.13));border-color:rgba(255,107,98,.2)}
+.cards{display:flex;flex-direction:column;gap:8px}
+.card{
+  position:relative;
+  min-height:168px;
+  border-radius:8px;
+  padding:13px 12px 12px;
+  cursor:pointer;
+  border:1px solid rgba(255,255,255,.1);
+  transition:opacity .16s ease,filter .16s ease,transform .16s ease,box-shadow .16s ease,border-color .16s ease;
+  overflow:hidden;
+}
+.card:hover{transform:translateY(-1px)}
+.card.us_allies{
+  background:linear-gradient(180deg,rgba(38,91,184,.46),rgba(20,41,83,.82));
+  border-color:rgba(94,168,255,.32);
+}
+.card.china{
+  background:linear-gradient(180deg,rgba(170,47,42,.46),rgba(80,24,23,.84));
+  border-color:rgba(255,107,98,.35);
+}
+.card.shared{
+  background:linear-gradient(180deg,rgba(118,85,22,.58),rgba(43,37,27,.9));
+  border-color:rgba(246,184,74,.36);
+}
+.card::after{
+  content:"";
+  position:absolute;
+  inset:auto -20px -34px auto;
+  width:96px;
+  height:96px;
+  border-radius:50%;
+  background:rgba(255,255,255,.06);
+  pointer-events:none;
+}
+.card.dim{opacity:.2;filter:saturate(.28) brightness(.82)}
+.card.lit{opacity:1;filter:brightness(1.16)}
+.card.selected{
+  outline:2px solid rgba(247,201,72,.96);
+  box-shadow:0 0 0 2px rgba(247,201,72,.18),0 0 24px rgba(247,201,72,.42);
+  z-index:4;
+}
+.card.bottleneck{border-color:rgba(255,77,94,.75)}
+.card.bottleneck .pulse{
+  display:inline-block;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  margin-right:5px;
+  background:var(--danger);
+  box-shadow:0 0 0 rgba(255,77,94,.6);
+  animation:pulse 1.9s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(255,77,94,.45)}
+  70%{box-shadow:0 0 0 8px rgba(255,77,94,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,77,94,0)}
+}
+.card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:7px;
+}
+.card-title{
+  font-size:15px;
+  line-height:1.25;
+  font-weight:900;
+  letter-spacing:0;
+}
+.badge-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  height:18px;
+  padding:0 6px;
+  border-radius:4px;
+  font-size:10px;
+  font-weight:900;
+  color:#fff;
+  background:rgba(255,255,255,.12);
+  white-space:nowrap;
+}
+.badge.invest{background:rgba(247,201,72,.22);color:#ffe68a}
+.badge.bottle{background:rgba(255,77,94,.2);color:#ffc4cb}
+.badge.dep{background:rgba(94,168,255,.17);color:#cde2ff}
+.reps{
+  color:#e8edf8;
+  font-size:11px;
+  line-height:1.45;
+  margin-bottom:7px;
+}
+.reps .side{
+  display:block;
+  color:#cfd7e8;
+}
+.reps .side strong{
+  color:#fff;
+  font-weight:900;
+}
+.logic{
+  color:rgba(230,236,250,.72);
+  font-size:11px;
+  line-height:1.45;
+}
+.legend{
+  position:absolute;
+  left:58px;
+  bottom:22px;
+  z-index:4;
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  max-width:1080px;
+  padding:9px 10px;
+  border-radius:8px;
+  background:rgba(8,10,18,.82);
+  border:1px solid rgba(255,255,255,.09);
+  color:var(--muted);
+  font-size:11px;
+}
+.legend-item{display:flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot.us{background:var(--us)}
+.dot.cn{background:var(--cn)}
+.dot.shared{background:var(--shared)}
+.dot.gold{background:var(--gold)}
+.dot.red{background:var(--danger)}
+.details{
+  display:none;
+  position:relative;
+  min-width:0;
+  background:linear-gradient(180deg,rgba(16,20,33,.98),rgba(9,12,20,.98));
+  overflow:auto;
+  padding:18px;
+}
+.details.drawer-open{display:block}
+.detail-card{
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.045);
+  padding:16px;
+}
+.detail-kicker{
+  display:inline-flex;
+  align-items:center;
+  height:22px;
+  padding:0 8px;
+  border-radius:5px;
+  font-size:11px;
+  font-weight:900;
+  margin-bottom:10px;
+  color:#fff;
+}
+.detail-kicker.us_allies{background:rgba(94,168,255,.22);color:#cde2ff}
+.detail-kicker.china{background:rgba(255,107,98,.22);color:#ffd1cd}
+.detail-kicker.shared{background:rgba(246,184,74,.22);color:#ffe1a2}
+.details h2{
+  font-size:22px;
+  line-height:1.2;
+  letter-spacing:0;
+  margin-bottom:8px;
+}
+.details p{
+  color:#c8d0e3;
+  font-size:13px;
+  line-height:1.62;
+  margin-bottom:12px;
+}
+.detail-section{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.detail-section h3{
+  color:#fff;
+  font-size:12px;
+  letter-spacing:.3px;
+  margin-bottom:8px;
+}
+.detail-list{display:flex;flex-wrap:wrap;gap:6px}
+.rep-groups{display:grid;grid-template-columns:1fr;gap:8px}
+.rep-group{
+  border-radius:8px;
+  padding:10px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.08);
+}
+.rep-group strong{
+  display:block;
+  margin-bottom:7px;
+  color:#fff;
+  font-size:12px;
+}
+.compare-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+}
+.compare-item{
+  border-radius:8px;
+  padding:10px;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(255,255,255,.08);
+}
+.compare-item strong{
+  display:block;
+  margin-bottom:5px;
+  color:#fff;
+  font-size:12px;
+}
+.compare-item span{
+  display:block;
+  color:#c8d0e3;
+  font-size:12px;
+  line-height:1.55;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:3px 8px;
+  border-radius:5px;
+  background:rgba(255,255,255,.08);
+  color:#dfe6f5;
+  font-size:12px;
+  line-height:1.35;
+}
+.source-box{
+  margin-top:16px;
+  padding:13px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.035);
+}
+.source-box h3{font-size:12px;margin-bottom:8px;color:#fff}
+.source-box a{
+  color:#9ec9ff;
+  display:block;
+  text-decoration:none;
+  font-size:11.5px;
+  line-height:1.45;
+  margin:6px 0;
+}
+.source-box a:hover{text-decoration:underline}
+.empty-note{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:rgba(255,255,255,.24);
+  font-size:11px;
+  line-height:1.4;
+  border:1px dashed rgba(255,255,255,.07);
+  border-radius:7px;
+}
+.path-internal{stroke:rgba(135,167,221,.35)}
+.path-shared{stroke:rgba(246,184,74,.34)}
+.path-control{stroke:rgba(255,77,94,.36);stroke-dasharray:6 5}
+.path-active{stroke:rgba(247,201,72,.95)!important;stroke-width:2.4!important;opacity:1!important}
+.path-dim{opacity:.09}
+@media (max-width:1100px){
+  .topbar{align-items:center;min-height:76px;flex-wrap:wrap}
+  .page,.page.has-details{top:76px;grid-template-columns:1fr}
+  .details.drawer-open{
+    position:fixed;
+    left:14px;
+    right:14px;
+    bottom:14px;
+    max-height:42vh;
+    z-index:60;
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;
+    box-shadow:0 18px 50px rgba(0,0,0,.5);
+  }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">AI</div>
+    <div>
+      <h1>双 AI 体系供应链网络图</h1>
+    </div>
+    <span class="year">2026</span>
+  </div>
+  <div class="hint">悬停预览，点击锁定；再次点击取消</div>
+  <a class="old-link" href="../ai-supply-chain-network-map/">旧版网络图</a>
+</header>
+
+<div class="page" id="page">
+  <main class="map-shell">
+    <div class="map-scroll" id="mapScroll">
+      <div class="map-inner" id="mapInner">
+        <svg id="links"></svg>
+        <div class="map-grid" id="mapGrid" aria-label="双 AI 体系供应链网络图"></div>
+        <div class="legend">
+          <span class="legend-item"><span class="dot us"></span>美国及盟友体系</span>
+          <span class="legend-item"><span class="dot shared"></span>共享依赖 / 卡点</span>
+          <span class="legend-item"><span class="dot cn"></span>中国 AI 体系</span>
+          <span class="legend-item"><span class="dot gold"></span>投资关注</span>
+          <span class="legend-item"><span class="dot red"></span>瓶颈 / 合规风险</span>
+        </div>
+      </div>
+    </div>
+  </main>
+  <aside class="details" id="details"></aside>
+</div>
+
+<script>
+window.MAP_DATA = {
+  layers: [
+    { id: "models", label: "模型与开发者" },
+    { id: "cloud", label: "云平台 / AI 工厂" },
+    { id: "compute", label: "算力芯片" },
+    { id: "network", label: "网络互连 / 系统" },
+    { id: "manufacturing", label: "制造与封装" },
+    { id: "infrastructure", label: "数据中心基础设施" },
+    { id: "applications", label: "应用落地" }
+  ],
+  nodes: [
+    {
+      id: "us_models",
+      ecosystem: "us_allies",
+      layer: "models",
+      title: "前沿模型平台",
+      representatives: ["OpenAI", "Anthropic", "Google DeepMind", "Meta", "xAI", "Mistral"],
+      description: "美国及盟友体系以闭源前沿模型、开源大模型和多模态代理为牵引，模型公司直接拉动云、芯片、网络和电力需求。",
+      role: "需求发动机：把训练、推理、长上下文和代理工作流转化为 AI 工厂建设周期。",
+      dependencies: ["大规模 GPU/ASIC 集群", "高质量数据", "云服务与开发者生态", "安全评测与监管框架"],
+      investmentMeaning: "关注模型需求对云 capex、HBM、先进封装、光互连、液冷和电力的外溢拉动，而不只看模型公司本身。",
+      risks: "模型能力扩散可能压低应用溢价；监管、安全、版权和算力成本会影响商业化节奏。",
+      tags: ["需求牵引", "代理 AI", "多模态"]
+    },
+    {
+      id: "us_cloud",
+      ecosystem: "us_allies",
+      layer: "cloud",
+      title: "超大规模 AI 工厂",
+      representatives: ["Microsoft Azure", "AWS", "Google Cloud", "OCI", "CoreWeave", "Lambda"],
+      description: "美国体系的核心组织方式是超大规模云与专业 GPU 云，把 NVIDIA、ASIC、服务器、网络和电力整合为可出租的 AI 产能。",
+      role: "资本开支入口：把模型需求转化为数据中心选址、芯片采购、机柜集成和长期电力合同。",
+      dependencies: ["NVIDIA / AMD / 自研 ASIC", "Oracle / CoreWeave 等算力伙伴", "电网接入", "数据中心建设许可"],
+      investmentMeaning: "云厂商 capex 是 AI 硬件周期的先行指标；同时带动服务器、交换机、光模块、UPS、变压器和液冷供应商。",
+      risks: "若推理价格下降快于利用率提升，AI 工厂可能面对回报周期拉长和客户集中风险。",
+      tags: ["AI 工厂", "Stargate", "云 capex"],
+      investmentSignal: true
+    },
+    {
+      id: "us_compute",
+      ecosystem: "us_allies",
+      layer: "compute",
+      title: "GPU 与自研 AI ASIC",
+      representatives: ["NVIDIA Blackwell / Vera Rubin", "AMD Instinct", "Google TPU", "AWS Trainium", "Microsoft Maia"],
+      description: "NVIDIA 仍是训练和高端推理的中心；同时 hyperscaler 用 TPU、Trainium、Maia 等自研芯片优化成本和供应韧性。",
+      role: "算力核心：决定模型训练速度、推理成本、软件生态和供应链议价能力。",
+      dependencies: ["TSMC 先进制程", "HBM", "CoWoS / 先进封装", "CUDA / ROCm / XLA 软件栈"],
+      investmentMeaning: "龙头仍在 NVIDIA 及其供应链，但自研 ASIC 会扩大 Broadcom、Marvell、EDA/IP、先进封装和 HBM 的机会。",
+      risks: "先进制程、HBM 和封装产能约束；出口管制改变区域可达市场；ASIC 需求可能分散通用 GPU 增长。",
+      tags: ["核心算力", "CUDA", "自研 ASIC"],
+      investmentSignal: true
+    },
+    {
+      id: "us_network",
+      ecosystem: "us_allies",
+      layer: "network",
+      title: "高速互连与 AI 服务器",
+      representatives: ["NVIDIA NVLink / InfiniBand / Spectrum-X", "Broadcom", "Arista", "Marvell", "Dell", "HPE", "Supermicro"],
+      description: "美国及盟友体系从单卡竞争走向 rack-scale 和 pod-scale，网络、交换芯片、DPU、光模块和整机能力成为集群效率关键。",
+      role: "集群效率层：决定 GPU 利用率、跨机通信、推理延迟和数据中心能效。",
+      dependencies: ["800G / 1.6T 光模块", "交换芯片", "DPU / NIC", "服务器 ODM 与液冷机柜"],
+      investmentMeaning: "当模型走向 MoE、长上下文和代理推理，网络与系统级集成的价值占比提升。",
+      risks: "技术路线在 InfiniBand、Ethernet、NVLink 和光互连之间切换，可能带来库存和标准风险。",
+      tags: ["互连", "AI 服务器", "光模块"],
+      investmentSignal: true
+    },
+    {
+      id: "us_manufacturing",
+      ecosystem: "us_allies",
+      layer: "manufacturing",
+      title: "先进制程与全球设备链",
+      representatives: ["TSMC", "Samsung", "Intel Foundry", "ASML", "Applied Materials", "Lam Research", "KLA", "SK hynix", "Micron", "ASE", "Amkor"],
+      description: "美国体系并不等于美国本土制造，而是美国设计能力叠加台湾、韩国、日本、荷兰和美国设备材料的可调动供应链。",
+      role: "物理供给底座：把芯片设计转化为先进逻辑、HBM、先进封装和可靠交付。",
+      dependencies: ["EUV / High-NA EUV", "先进沉积 / 刻蚀 / 量测", "HBM", "CoWoS / SoIC / 2.5D 封装"],
+      investmentMeaning: "先进制程、HBM 和封装是 AI capex 中最难快速复制的环节，议价权集中在少数全球龙头。",
+      risks: "台海地缘风险、设备出口限制、先进封装扩产节奏和良率波动会影响整条链。",
+      tags: ["全球供给", "先进制程", "HBM"]
+    },
+    {
+      id: "us_infra",
+      ecosystem: "us_allies",
+      layer: "infrastructure",
+      title: "电力、液冷与数据中心",
+      representatives: ["Equinix", "Digital Realty", "Vertiv", "Eaton", "Schneider Electric", "Constellation", "Oklo", "Corning"],
+      description: "AI 工厂从 IT 项目变成电力和工程项目，电网接入、变压器、UPS、液冷、光纤和长期能源合同成为上限。",
+      role: "容量天花板：决定 AI 集群能否按计划上架和稳定运行。",
+      dependencies: ["高压接入", "冷却系统", "备用电源", "光纤骨干", "土地与许可"],
+      investmentMeaning: "电力设备、液冷、数据中心 REIT、光纤和能源供应商进入 AI 投资主线。",
+      risks: "地方审批、居民反对、电价波动、水资源和电网拥堵可能推迟交付。",
+      tags: ["电力", "液冷", "IDC"],
+      investmentSignal: true
+    },
+    {
+      id: "us_applications",
+      ecosystem: "us_allies",
+      layer: "applications",
+      title: "企业、国防与生产力应用",
+      representatives: ["Microsoft Copilot", "Palantir", "Anduril", "Tesla / Waymo", "ServiceNow", "Adobe", "NVIDIA Omniverse"],
+      description: "美国体系更强调软件平台和行业应用把模型能力产品化，企业 Copilot、国防 AI、自动驾驶、医疗、工业仿真和内容生成并行推进。",
+      role: "商业化出口：把算力投入转化为订阅收入、生产率提升和行业流程重构。",
+      dependencies: ["模型 API", "企业数据", "安全合规", "边缘设备和行业系统集成"],
+      investmentMeaning: "应用层决定 AI capex 的长期回报，能形成工作流闭环的 SaaS、国防科技和工业软件更值得跟踪。",
+      risks: "客户预算、数据治理、幻觉责任和 ROI 证明周期会影响采用速度。",
+      tags: ["Copilot", "Defense AI", "工业仿真"]
+    },
+    {
+      id: "cn_models",
+      ecosystem: "china",
+      layer: "models",
+      title: "国产模型与开源生态",
+      representatives: ["DeepSeek", "Qwen", "豆包", "百度文心", "Kimi", "智谱", "MiniMax", "零一万物"],
+      description: "中国体系的模型路线更强调高性价比训练、开源扩散、中文场景和推理效率，并围绕国内云与行业应用快速适配。",
+      role: "需求与生态入口：用模型能力带动云平台、国产芯片适配和行业私有化部署。",
+      dependencies: ["国内云算力", "存量 / 合规 NVIDIA", "昇腾 / 寒武纪等国产加速器", "中文数据与行业数据"],
+      investmentMeaning: "模型本身未必是最直接投资标的，真正可持续的机会在推理成本下降后带动的云、算力、服务器和应用规模化。",
+      risks: "开源模型降低商业壁垒；模型备案、内容安全和算力供给会约束规模。",
+      tags: ["开源", "中文场景", "推理效率"]
+    },
+    {
+      id: "cn_cloud",
+      ecosystem: "china",
+      layer: "cloud",
+      title: "国产云与算力调度平台",
+      representatives: ["阿里云", "腾讯云", "华为云", "百度智能云", "火山引擎", "硅基流动", "无问芯穹"],
+      description: "中国 AI 体系以公有云、运营商智算中心和第三方算力调度平台共同承载，现实中混合使用国产加速器、存量 NVIDIA 和合规进口芯片。",
+      role: "承载层：把模型服务、行业私有化、推理 API 和异构芯片调度整合起来。",
+      dependencies: ["国产 AI 芯片", "存量 / 合规 NVIDIA 资源", "运营商 IDC", "模型服务平台"],
+      investmentMeaning: "云和算力调度平台是国产芯片能否变成可用生产力的关键，关注利用率、客户结构和异构调度能力。",
+      risks: "价格战、算力利用率、GPU 供应不确定性和政企项目回款节奏。",
+      tags: ["异构调度", "推理云", "政企"],
+      investmentSignal: true
+    },
+    {
+      id: "cn_compute",
+      ecosystem: "china",
+      layer: "compute",
+      title: "昇腾主线与国产加速器",
+      representatives: ["华为昇腾 / CloudMatrix", "寒武纪", "海光信息", "壁仞科技", "摩尔线程", "燧原科技", "沐曦集成"],
+      description: "中国体系的算力路线不是完全替代 NVIDIA，而是在出口限制下用昇腾、国产 GPU/NPU 和存量 NVIDIA 共同支撑训练与推理。",
+      role: "国产替代核心：决定中国 AI 体系的自主上限、软件迁移成本和供应安全。",
+      dependencies: ["CANN / 国产软件栈", "先进封装", "HBM 或替代内存方案", "SMIC / 封测 / 板卡供应链"],
+      investmentMeaning: "优先关注已进入规模交付、生态适配和政企订单的龙头；其次看板卡、散热、电源和服务器配套。",
+      risks: "制程、HBM、软件生态和良率短板会导致同等性能下功耗和系统复杂度更高。",
+      tags: ["国产替代", "昇腾", "异构"],
+      investmentSignal: true
+    },
+    {
+      id: "cn_network",
+      ecosystem: "china",
+      layer: "network",
+      title: "国产网络、服务器与光模块",
+      representatives: ["华为 CloudEngine", "新华三", "锐捷网络", "盛科通信", "浪潮信息", "工业富联", "中科曙光", "中际旭创", "新易盛", "光迅科技"],
+      description: "中国体系的集群效率取决于国产交换、以太网、光模块、服务器整机和超节点架构，光互连是最接近全球竞争力的环节之一。",
+      role: "系统放大器：通过网络、服务器和光互连提升国产芯片集群的有效利用率。",
+      dependencies: ["高速交换芯片", "800G / 1.6T 光模块", "AI 服务器 ODM", "液冷机柜"],
+      investmentMeaning: "中国投资线索中，光模块、服务器、交换设备和液冷与全球 AI capex 的相关性更直接。",
+      risks: "海外客户周期、价格竞争、光芯片供给和技术迭代会带来波动。",
+      tags: ["光模块", "服务器", "交换"],
+      investmentSignal: true
+    },
+    {
+      id: "cn_manufacturing",
+      ecosystem: "china",
+      layer: "manufacturing",
+      title: "国产制造、设备、EDA 与封测",
+      representatives: ["中芯国际", "华虹公司", "长江存储", "长鑫存储", "北方华创", "中微公司", "华大九天", "长电科技", "通富微电", "深南电路"],
+      description: "中国制造链围绕成熟制程扩产、先进节点追赶、设备国产化、EDA 补短板、存储和先进封装形成长期替代主线。",
+      role: "自主供给底座：决定国产 AI 芯片能否持续降本、稳定交付和形成闭环。",
+      dependencies: ["DUV 多重曝光", "国产刻蚀 / 薄膜 / 清洗 / 量测", "EDA/IP", "先进封装与载板"],
+      investmentMeaning: "真正的长期投资线索在设备、材料、EDA、封测和先进封装能力，而不只是晶圆厂扩产。",
+      risks: "EUV 不可得、先进节点良率、实体清单和客户集中是核心约束。",
+      tags: ["国产化", "设备", "封测"],
+      investmentSignal: true,
+      bottleneck: true
+    },
+    {
+      id: "cn_infra",
+      ecosystem: "china",
+      layer: "infrastructure",
+      title: "运营商智算、电力与冷却",
+      representatives: ["中国移动", "中国电信", "中国联通", "万国数据", "秦淮数据", "润泽科技", "国家电网", "特变电工", "科华数据", "英维克", "申菱环境"],
+      description: "中国 AI 体系依托运营商、地方智算中心和互联网云建设，电力指标、PUE、液冷、机柜功率和数据中心利用率是关键变量。",
+      role: "部署底盘：把芯片和服务器变成可用算力，并决定单位推理成本。",
+      dependencies: ["电网接入", "变压器 / UPS", "液冷", "地方算力券和政企需求"],
+      investmentMeaning: "AI 投资不只在芯片，电源、温控、液冷、IDC 和运营商智算也可能成为订单弹性来源。",
+      risks: "地方重复建设、上架率不足、电价和客户回款会影响盈利质量。",
+      tags: ["智算中心", "液冷", "电力"],
+      investmentSignal: true
+    },
+    {
+      id: "cn_applications",
+      ecosystem: "china",
+      layer: "applications",
+      title: "政企、汽车、机器人与行业模型",
+      representatives: ["华为行业智能体", "阿里 / 腾讯 / 百度行业云", "科大讯飞", "金山办公", "比亚迪 / 赛力斯", "优必选", "埃斯顿"],
+      description: "中国应用更强调政企私有化、办公与内容、智能汽车、机器人、工业 AI、金融医疗教育等行业模型落地。",
+      role: "需求落地：验证国产算力和模型的可用性，并带动端侧 AI 和行业软件升级。",
+      dependencies: ["国产模型 API", "行业数据", "边缘芯片", "系统集成和销售渠道"],
+      investmentMeaning: "关注能把 AI 嵌入真实流程的龙头应用公司，以及智能汽车、机器人和工业软件对端侧算力的拉动。",
+      risks: "行业客户预算、项目制收入、数据安全和商业模式仍需验证。",
+      tags: ["行业模型", "智能汽车", "机器人"]
+    },
+    {
+      id: "shared_euv",
+      ecosystem: "shared",
+      layer: "manufacturing",
+      title: "EUV / High-NA 光刻",
+      representatives: ["ASML", "Carl Zeiss SMT", "Cymer"],
+      usRepresentatives: ["ASML", "Carl Zeiss SMT", "Cymer", "TSMC / Samsung / Intel leading-edge fabs"],
+      chinaRepresentatives: ["无可获得 EUV 量产设备", "DUV 多重曝光路线", "北方华创 / 中微公司等设备追赶", "先进封装补偿"],
+      description: "EUV 是先进逻辑制程最难替代的单点能力，High-NA EUV 继续服务下一代领先制程开发。",
+      role: "最高端制程瓶颈：直接影响 2nm 及更先进节点的产能和良率。",
+      dependencies: ["光源", "镜头", "光刻胶", "量测和工艺协同"],
+      investmentMeaning: "对中国体系，EUV 不可得会强化 DUV 延展、设备国产化和先进封装替代逻辑；对美国体系，ASML 仍是先进制程扩产核心。",
+      risks: "出口许可、地缘政治和设备交付周期是关键不确定性。",
+      tags: ["瓶颈", "先进制程"],
+      sharedDependency: true,
+      bottleneck: true
+    },
+    {
+      id: "shared_tsmc",
+      ecosystem: "shared",
+      layer: "manufacturing",
+      title: "先进制程可得性",
+      representatives: ["TSMC", "Samsung Foundry", "Intel Foundry"],
+      usRepresentatives: ["TSMC N2/A16", "Samsung Foundry", "Intel Foundry", "Apple / NVIDIA / AMD / hyperscaler ASIC 客户"],
+      chinaRepresentatives: ["中芯国际", "华虹公司", "成熟制程 + DUV 延展", "国产芯片系统级补偿"],
+      description: "3nm、2nm 和后续 A16 等先进逻辑制程仍高度集中，但两套体系的可获得性完全不同：美国及盟友可调动，国产链条以追赶和系统补偿为主。",
+      role: "先进节点可得性卡点：决定 AI 芯片的性能、功耗、供给速度和替代路线。",
+      dependencies: ["EUV", "先进封装", "EDA/IP", "良率工程"],
+      investmentMeaning: "先进代工约束会把溢价传导到设备、材料、封装、HBM 和拥有确定产能的芯片客户。",
+      risks: "台海风险、客户集中、先进节点 ramp 和海外扩产成本。",
+      tags: ["先进代工", "HPC"],
+      sharedDependency: true,
+      bottleneck: true
+    },
+    {
+      id: "shared_hbm",
+      ecosystem: "shared",
+      layer: "compute",
+      title: "HBM 高带宽存储",
+      representatives: ["SK hynix", "Micron", "Samsung", "长鑫存储追赶"],
+      usRepresentatives: ["SK hynix", "Micron", "Samsung", "NVIDIA / AMD / ASIC 客户认证"],
+      chinaRepresentatives: ["长鑫存储追赶", "本土封测与测试设备", "替代内存/系统优化路线"],
+      description: "HBM 是训练和高端推理的核心资源，决定 GPU/ASIC 能否喂满数据并支撑长上下文和多模态工作负载。",
+      role: "算力放大器：影响单卡性能、封装复杂度和系统能效。",
+      dependencies: ["DRAM 工艺", "TSV 堆叠", "先进封装", "良率和客户认证"],
+      investmentMeaning: "HBM 短缺会强化存储龙头、封装材料和测试设备议价权，也使中国替代路线更重视存储和封装能力。",
+      risks: "产能周期、价格波动、客户认证失败和出口管制。",
+      tags: ["HBM4", "存储瓶颈"],
+      sharedDependency: true,
+      bottleneck: true
+    },
+    {
+      id: "shared_cowos",
+      ecosystem: "shared",
+      layer: "manufacturing",
+      title: "CoWoS / 先进封装",
+      representatives: ["TSMC CoWoS", "ASE", "Amkor", "长电科技", "通富微电"],
+      usRepresentatives: ["TSMC CoWoS", "ASE", "Amkor", "NVIDIA / Broadcom / AMD 先进封装需求"],
+      chinaRepresentatives: ["长电科技", "通富微电", "华天科技", "深南电路 / 兴森科技等载板链"],
+      description: "AI 加速器从芯片竞争走向封装竞争，2.5D/3D 封装把 GPU/ASIC、HBM 和高速互连集成到可量产系统。",
+      role: "产能卡点：决定高端 AI 芯片能否按计划出货。",
+      dependencies: ["硅中介层", "载板", "HBM", "测试和良率管理"],
+      investmentMeaning: "先进封装扩产同时利好封测龙头、载板、材料、测试设备和热管理。",
+      risks: "扩产周期长、良率波动、客户产品切换和资本开支过热。",
+      tags: ["封装", "产能卡点"],
+      sharedDependency: true,
+      bottleneck: true
+    },
+    {
+      id: "shared_optics",
+      ecosystem: "shared",
+      layer: "network",
+      title: "光模块 / 光纤 / CPO",
+      representatives: ["Broadcom", "Marvell", "Coherent", "Lumentum", "中际旭创", "新易盛", "光迅科技"],
+      usRepresentatives: ["Broadcom", "Marvell", "Coherent", "Lumentum", "云厂商网络架构"],
+      chinaRepresentatives: ["中际旭创", "新易盛", "光迅科技", "天孚通信", "源杰科技"],
+      description: "AI 集群规模扩大后，800G、1.6T 光模块、硅光和 CPO 决定跨机通信成本、功耗和可扩展性。",
+      role: "网络瓶颈：把芯片性能转化为集群吞吐。",
+      dependencies: ["高速 DSP", "光芯片", "封装", "交换芯片和数据中心网络架构"],
+      investmentMeaning: "这是中美体系都需要、且中国公司已有全球竞争力的环节，适合放在投资观察前排。",
+      risks: "技术迭代快、客户集中、价格下行和海外贸易限制。",
+      tags: ["800G", "1.6T", "CPO"],
+      sharedDependency: true,
+      investmentSignal: true
+    },
+    {
+      id: "shared_eda",
+      ecosystem: "shared",
+      layer: "compute",
+      title: "高端 EDA / IP",
+      representatives: ["Synopsys", "Cadence", "Siemens EDA", "Arm", "华大九天"],
+      usRepresentatives: ["Synopsys", "Cadence", "Siemens EDA", "Arm", "代工厂 PDK 生态"],
+      chinaRepresentatives: ["华大九天", "概伦电子", "广立微", "芯原股份", "本土 IP/验证工具追赶"],
+      description: "EDA、IP 和设计服务决定 AI 芯片从架构到流片的效率，是先进制程和复杂 SoC 的隐形入口。",
+      role: "设计门槛：越先进的工艺越依赖工具、IP 和代工厂设计规则协同。",
+      dependencies: ["先进 PDK", "IP 授权", "验证工具", "代工生态"],
+      investmentMeaning: "中国体系的 EDA/IP 补短板空间大，但高端替代需要长期客户验证。",
+      risks: "软件生态、IP 兼容性、客户迁移成本和出口限制。",
+      tags: ["EDA", "IP", "设计"],
+      sharedDependency: true,
+      bottleneck: true
+    },
+    {
+      id: "shared_power",
+      ecosystem: "shared",
+      layer: "infrastructure",
+      title: "电力、液冷、IDC 通电容量",
+      representatives: ["Vertiv", "Eaton", "Schneider Electric", "国家电网", "英维克", "申菱环境"],
+      usRepresentatives: ["Vertiv", "Eaton", "Schneider Electric", "Constellation Energy", "Oklo", "美国电网与数据中心业主"],
+      chinaRepresentatives: ["国家电网", "中国移动 / 电信 / 联通", "万国数据 / 润泽科技", "英维克", "申菱环境", "科华数据"],
+      description: "AI 竞争最终落到各自本地可获得的兆瓦、机柜功率密度、散热效率和电网接入速度；国家电网只属于中国体系，美国侧由当地电网、电力公司和设备商服务。",
+      role: "本地物理上限：分别决定两套体系的算力能否从订单变成上线容量。",
+      dependencies: ["变压器", "UPS", "液冷", "水资源", "电力合同"],
+      investmentMeaning: "中国投资中，电力设备、温控、液冷和 IDC 运营商是最容易被 AI 建设拉动的实物链条之一。",
+      risks: "政策审批、电网瓶颈、利用率不足和 capex 前置。",
+      tags: ["电力", "液冷", "IDC"],
+      sharedDependency: true,
+      investmentSignal: true
+    },
+    {
+      id: "shared_controls",
+      ecosystem: "shared",
+      layer: "cloud",
+      title: "出口管制与合规边界",
+      representatives: ["BIS", "供应链合规团队", "云服务商", "芯片客户"],
+      usRepresentatives: ["BIS", "美国云服务商合规体系", "NVIDIA / AMD / 设备厂商出口许可"],
+      chinaRepresentatives: ["中国云厂商合规采购", "国产替代供应链", "存量/合规进口芯片管理"],
+      description: "先进计算芯片、HBM、半导体设备和部分模型能力都受到政策边界影响，合规成为两套体系分化的重要外生变量。",
+      role: "规则层：改变芯片可达性、客户结构、替代速度和区域供应链分工。",
+      dependencies: ["EAR / Entity List", "客户筛查", "许可证", "第三方测试和安全要求"],
+      investmentMeaning: "管制越清晰，中国替代链越容易形成预期；管制若放松，合规 NVIDIA/AMD 可能延缓部分国产替代节奏。",
+      risks: "政策突变、再出口风险、客户合规成本和供应中断。",
+      tags: ["合规", "出口管制"],
+      sharedDependency: true,
+      bottleneck: true
+    }
+  ],
+  edges: [
+    { source: "us_models", target: "us_cloud", type: "internal" },
+    { source: "us_cloud", target: "us_compute", type: "internal" },
+    { source: "us_compute", target: "us_network", type: "internal" },
+    { source: "us_compute", target: "us_manufacturing", type: "internal" },
+    { source: "us_cloud", target: "us_infra", type: "internal" },
+    { source: "us_models", target: "us_applications", type: "internal" },
+    { source: "us_applications", target: "us_cloud", type: "internal" },
+    { source: "us_network", target: "us_infra", type: "internal" },
+    { source: "cn_models", target: "cn_cloud", type: "internal" },
+    { source: "cn_cloud", target: "cn_compute", type: "internal" },
+    { source: "cn_compute", target: "cn_network", type: "internal" },
+    { source: "cn_compute", target: "cn_manufacturing", type: "internal" },
+    { source: "cn_cloud", target: "cn_infra", type: "internal" },
+    { source: "cn_models", target: "cn_applications", type: "internal" },
+    { source: "cn_applications", target: "cn_cloud", type: "internal" },
+    { source: "cn_network", target: "cn_infra", type: "internal" },
+    { source: "shared_controls", target: "us_compute", type: "control" },
+    { source: "shared_controls", target: "cn_compute", type: "control" },
+    { source: "shared_controls", target: "cn_cloud", type: "control" },
+    { source: "shared_controls", target: "us_cloud", type: "control" },
+    { source: "shared_hbm", target: "us_compute", type: "shared" },
+    { source: "shared_hbm", target: "cn_compute", type: "shared" },
+    { source: "shared_eda", target: "us_compute", type: "shared" },
+    { source: "shared_eda", target: "cn_compute", type: "shared" },
+    { source: "shared_eda", target: "us_manufacturing", type: "shared" },
+    { source: "shared_eda", target: "cn_manufacturing", type: "shared" },
+    { source: "shared_optics", target: "us_network", type: "shared" },
+    { source: "shared_optics", target: "cn_network", type: "shared" },
+    { source: "shared_euv", target: "us_manufacturing", type: "shared" },
+    { source: "shared_euv", target: "cn_manufacturing", type: "control" },
+    { source: "shared_tsmc", target: "us_manufacturing", type: "shared" },
+    { source: "shared_tsmc", target: "us_compute", type: "shared" },
+    { source: "shared_tsmc", target: "cn_compute", type: "control" },
+    { source: "shared_cowos", target: "us_compute", type: "shared" },
+    { source: "shared_cowos", target: "cn_compute", type: "shared" },
+    { source: "shared_cowos", target: "us_manufacturing", type: "shared" },
+    { source: "shared_cowos", target: "cn_manufacturing", type: "shared" },
+    { source: "shared_power", target: "us_infra", type: "shared" },
+    { source: "shared_power", target: "cn_infra", type: "shared" }
+  ],
+  sources: [
+    { label: "NVIDIA: Vera Rubin / Rubin AI factory platform, 2026", url: "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Kicks-Off-the-Next-Generation-of-AI-With-Rubin--Six-New-Chips-One-Incredible-AI-Supercomputer/default.aspx" },
+    { label: "OpenAI: Stargate AI infrastructure expansion, 2025-2026", url: "https://openai.com/index/building-the-compute-infrastructure-for-the-intelligence-age/" },
+    { label: "Huawei: CloudMatrix384 / Ascend AI compute service, 2025", url: "https://www.huawei.com/en/news/2025/9/hc-huawei-cloud-ai-pioneer" },
+    { label: "Huawei: Ascend SuperPoD and CloudMatrix384 architecture, 2025", url: "https://www.huawei.com/en/news/2025/9/hc-xu-keynote-speech" },
+    { label: "TSMC 2025 Annual Report: AI demand, N2/A16, CoWoS and advanced packaging", url: "https://investor.tsmc.com/static/annualReports/2025/english/index.html" },
+    { label: "BIS: semiconductor export licensing policy for China, 2026", url: "https://www.bis.gov/press-release/department-commerce-revises-license-review-policy-semiconductors-exported-china" },
+    { label: "BIS: HBM and semiconductor equipment controls, 2024", url: "https://www.bis.gov/press-release/commerce-strengthens-export-controls-restrict-chinas-capability-produce-advanced-semiconductors-military" },
+    { label: "Micron: HBM4 volume production for NVIDIA Vera Rubin, 2026", url: "https://investors.micron.com/news-releases/news-release-details/micron-high-volume-production-hbm4-designed-nvidia-vera-rubin" },
+    { label: "ASML / imec: High-NA EUV lab and leading-edge lithography, 2024", url: "https://www.asml.com/news/press-releases/2024/asml-imec-opening-high-na-euv-lithography-lab" }
+  ]
+};
+
+(() => {
+  const { layers, nodes, edges, sources } = window.MAP_DATA;
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const adj = {};
+  nodes.forEach((node) => { adj[node.id] = new Set(); });
+  edges.forEach((edge) => {
+    adj[edge.source].add(edge.target);
+    adj[edge.target].add(edge.source);
+  });
+
+  const mapGrid = document.getElementById("mapGrid");
+  const mapInner = document.getElementById("mapInner");
+  const mapScroll = document.getElementById("mapScroll");
+  const svg = document.getElementById("links");
+  const details = document.getElementById("details");
+  const page = document.getElementById("page");
+  let selectedId = null;
+  let hoverId = null;
+
+  function activeId() {
+    return selectedId || hoverId;
+  }
+
+  function esc(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function ecosystemLabel(ecosystem) {
+    if (ecosystem === "us_allies") return "美国及盟友 AI 体系";
+    if (ecosystem === "china") return "中国 AI 体系";
+    return "共享依赖 / 卡点 / 交叉耦合层";
+  }
+
+  function renderBadge(node) {
+    const badges = [];
+    if (node.investmentSignal) badges.push('<span class="badge invest">投资关注</span>');
+    if (node.bottleneck) badges.push('<span class="badge bottle"><span class="pulse"></span>瓶颈</span>');
+    if (node.sharedDependency) badges.push('<span class="badge dep">共享依赖</span>');
+    for (const tag of node.tags.slice(0, 2)) {
+      badges.push(`<span class="badge">${esc(tag)}</span>`);
+    }
+    return badges.join("");
+  }
+
+  function representativesForCard(node) {
+    if (node.ecosystem === "shared" && node.usRepresentatives && node.chinaRepresentatives) {
+      return `
+        <span class="side"><strong>美国及盟友:</strong> ${esc(node.usRepresentatives.slice(0, 3).join(" · "))}</span>
+        <span class="side"><strong>中国体系:</strong> ${esc(node.chinaRepresentatives.slice(0, 3).join(" · "))}</span>
+      `;
+    }
+    return esc(node.representatives.slice(0, 4).join(" · "));
+  }
+
+  function renderRepresentatives(node) {
+    if (node.ecosystem === "shared" && node.usRepresentatives && node.chinaRepresentatives) {
+      return `
+        <div class="rep-groups">
+          <div class="rep-group">
+            <strong>美国及盟友侧</strong>
+            <div class="detail-list">${node.usRepresentatives.map((item) => `<span class="pill">${esc(item)}</span>`).join("")}</div>
+          </div>
+          <div class="rep-group">
+            <strong>中国体系侧</strong>
+            <div class="detail-list">${node.chinaRepresentatives.map((item) => `<span class="pill">${esc(item)}</span>`).join("")}</div>
+          </div>
+        </div>
+      `;
+    }
+    return `<div class="detail-list">${node.representatives.map((item) => `<span class="pill">${esc(item)}</span>`).join("")}</div>`;
+  }
+
+  function createCard(node) {
+    const card = document.createElement("article");
+    card.className = `card ${node.ecosystem}${node.bottleneck ? " bottleneck" : ""}`;
+    card.id = node.id;
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `${node.title}，点击查看详情`);
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="card-title">${esc(node.title)}</div>
+      </div>
+      <div class="reps">${representativesForCard(node)}</div>
+      <div class="logic">${esc(node.role)}</div>
+      <div class="badge-row">${renderBadge(node)}</div>
+    `;
+    card.addEventListener("mouseenter", () => {
+      if (selectedId) return;
+      hoverId = node.id;
+      applyFocus();
+    });
+    card.addEventListener("mouseleave", () => {
+      if (selectedId) return;
+      hoverId = null;
+      applyFocus();
+    });
+    card.addEventListener("click", () => {
+      selectedId = selectedId === node.id ? null : node.id;
+      hoverId = null;
+      applyFocus();
+      if (selectedId) {
+        showDetails(node);
+      } else {
+        closeDetails();
+      }
+    });
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        card.click();
+      }
+    });
+    return card;
+  }
+
+  function renderMap() {
+    layers.forEach((layer) => {
+      const col = document.createElement("section");
+      col.className = "layer-col";
+      col.innerHTML = `<div class="layer-title">${esc(layer.label)}</div>`;
+      for (const lane of [
+        { id: "us_allies", className: "lane-us", label: "美国及盟友 AI 体系" },
+        { id: "shared", className: "lane-shared", label: "共享依赖 / 卡点" },
+        { id: "china", className: "lane-china", label: "中国 AI 体系" }
+      ]) {
+        const laneEl = document.createElement("div");
+        laneEl.className = `lane ${lane.className}`;
+        laneEl.dataset.label = lane.label;
+        const cards = document.createElement("div");
+        cards.className = "cards";
+        const laneNodes = nodes.filter((node) => node.layer === layer.id && node.ecosystem === lane.id);
+        if (laneNodes.length) {
+          laneNodes.forEach((node) => cards.appendChild(createCard(node)));
+        } else {
+          cards.innerHTML = '<div class="empty-note">约束贯穿其他层级</div>';
+        }
+        laneEl.appendChild(cards);
+        col.appendChild(laneEl);
+      }
+      mapGrid.appendChild(col);
+    });
+  }
+
+  function compareText(node) {
+    const byLayer = {
+      models: {
+        us: "美国及盟友以 OpenAI、Anthropic、Google 和 Meta 为核心，优势在前沿训练、开发者生态、企业软件入口和全球 API 分发。",
+        china: "中国体系以 DeepSeek、Qwen、豆包、文心、Kimi 等为核心，优势在中文场景、开源扩散、推理效率和政企私有化适配。",
+        gap: "美国领先在高端训练算力和全球商业化生态；中国更强在成本压缩、应用落地速度和国产算力适配压力。",
+        investment: "中国投资更应看模型降本后带动的推理云、行业软件、国产算力适配和端侧应用，而不是只押模型公司。"
+      },
+      cloud: {
+        us: "美国体系由 Azure、AWS、Google Cloud、OCI 和 CoreWeave 组织大规模 AI 工厂，资本开支和电力合同更全球化。",
+        china: "中国体系由互联网云、华为云、运营商智算和第三方调度平台共同承载，更强调异构算力和政企项目。",
+        gap: "美国优势在高端 GPU 可得性和全球客户；中国约束在芯片可得性、利用率和回款节奏。",
+        investment: "中国线索集中在算力调度、运营商智算、服务器、液冷、电力设备和能提升利用率的平台。"
+      },
+      compute: {
+        us: "美国及盟友体系围绕 NVIDIA GPU、CUDA 和 hyperscaler 自研 ASIC 展开，先进制程、HBM 和软件生态形成复利。",
+        china: "中国体系以昇腾、寒武纪、海光等国产加速器叠加存量或合规 NVIDIA 资源，核心是可交付、可迁移、可规模部署。",
+        gap: "差距主要在先进制程、HBM、封装、软件生态和单瓦性能；中国机会在系统级补偿和替代渗透率提升。",
+        investment: "优先观察已规模交付的国产芯片、板卡、AI 服务器、电源散热和适配工具链。"
+      },
+      network: {
+        us: "美国体系由 NVIDIA、Broadcom、Arista、Marvell 和服务器龙头推动 rack-scale 互连，标准和芯片优势明显。",
+        china: "中国体系在光模块、服务器整机和以太网设备上竞争力较强，但高端交换芯片、DSP 和系统软件仍需追赶。",
+        gap: "中国光模块龙头具备全球供货能力，差距更多在上游高速芯片、协议生态和超大集群系统调优。",
+        investment: "光模块、AI 服务器、交换设备、液冷机柜是中国公司较容易受益于全球 AI capex 的方向。"
+      },
+      manufacturing: {
+        us: "美国及盟友可调动 TSMC、ASML、Samsung、SK hynix、Applied、Lam、KLA 等全球领先制造与设备链。",
+        china: "中国制造链围绕 SMIC、华虹、北方华创、中微、华大九天、长电、通富等补短板，先进制程受限但替代空间大。",
+        gap: "最大差距在 EUV、先进节点良率、HBM、EDA/IP 和先进封装成熟度；优势在国产替代需求确定。",
+        investment: "中国投资逻辑更偏设备、材料、EDA、封测、先进封装和成熟制程国产化。"
+      },
+      infrastructure: {
+        us: "美国体系更依赖 hyperscaler、专业数据中心、电力公司和液冷/电气设备龙头组织大规模 AI 工厂。",
+        china: "中国体系依托运营商、地方智算中心、IDC、国家电网和温控电源厂商，政策与电力指标影响更大。",
+        gap: "美国优势在全球客户和长期资本；中国优势在工程交付和政策推动，但要警惕低利用率。",
+        investment: "中国线索应关注真实上架率、客户质量、液冷渗透率、UPS/变压器订单和电力接入能力。"
+      },
+      applications: {
+        us: "美国应用更偏企业软件、国防科技、自动驾驶、工业仿真和生成式内容，软件订阅生态成熟。",
+        china: "中国应用更偏政企私有化、办公、智能汽车、机器人、工业 AI 和行业模型，场景碎片但落地速度快。",
+        gap: "美国强在全球化产品和高 ARPU；中国强在场景密度和供应链配合，但项目制收入质量需要辨别。",
+        investment: "寻找能把 AI 嵌入真实流程的行业龙头，并验证其毛利、续费和数据闭环。"
+      }
+    };
+    const shared = {
+      shared_euv: {
+        us: "美国及盟友先进制程仍可通过 ASML EUV 进入 TSMC、Samsung、Intel 等领先产线。",
+        china: "中国体系缺少 EUV 可获得性，更多依赖 DUV 多重曝光、国产设备追赶和先进封装补偿。",
+        gap: "这是中美先进逻辑制程差距最硬的环节之一，短期难靠单家公司快速弥合。",
+        investment: "差距越明确，越凸显国产半导体设备、材料、量测、EDA 和先进封装的长期替代价值。"
+      },
+      shared_tsmc: {
+        us: "美国 AI 芯片设计可通过 TSMC 先进节点和 CoWoS 放大供给，形成芯片、封装、软件的闭环。",
+        china: "中国 AI 芯片很难稳定获得同等先进代工资源，必须在系统架构、软件优化和本土制造上补偿。",
+        gap: "先进节点可得性决定单卡性能和功耗差距，也是国产 AI 芯片路线的核心约束。",
+        investment: "中国投资看点在国产芯片系统化部署、成熟制程复用、封装补偿和制造设备国产化。"
+      },
+      shared_hbm: {
+        us: "美国及盟友体系绑定 SK hynix、Micron、Samsung 的 HBM 供应，并与 NVIDIA/ASIC 客户深度认证。",
+        china: "中国 HBM 能力仍在追赶，长鑫等存储链条更需要时间进入高端 AI 客户验证。",
+        gap: "差距不只在产能，也在 TSV、封装、良率、功耗和客户认证周期。",
+        investment: "关注国产存储、封装材料、测试设备和替代内存架构，但要避免把短期追赶速度估得过快。"
+      },
+      shared_cowos: {
+        us: "美国及盟友体系依赖 TSMC CoWoS、ASE、Amkor 等成熟先进封装，把 GPU/ASIC 与 HBM 组合成交付能力。",
+        china: "中国体系拥有长电科技、通富微电等封测龙头，但在高端 2.5D/3D、HBM 集成和超大客户认证上仍追赶。",
+        gap: "差距在产能规模、良率、载板/中介层、热管理和头部客户协同。中国公司更可能先从封测扩产和国产芯片配套受益。",
+        investment: "共享依赖中同时有中美链条参与时，要比较谁掌握先进客户认证。中国机会在封测、载板、材料、测试和热管理。"
+      },
+      shared_optics: {
+        us: "美国体系在 Broadcom、Marvell 等高速 DSP/交换芯片和云厂商网络架构上更强。",
+        china: "中国公司如中际旭创、新易盛、光迅科技在光模块制造与全球供货上有竞争力。",
+        gap: "中国优势在模块制造和交付，短板在上游 DSP、硅光核心芯片和标准定义权。",
+        investment: "这是中国企业能直接参与全球 AI capex 的少数强环节，应同时比较客户结构、800G/1.6T 份额和上游芯片依赖。"
+      },
+      shared_eda: {
+        us: "美国体系由 Synopsys、Cadence、Siemens EDA 和 Arm/IP 生态主导高端芯片设计。",
+        china: "中国华大九天等在部分工具链追赶，但先进节点全流程、IP 生态和客户迁移仍有差距。",
+        gap: "EDA 差距会通过设计效率、验证成本和流片成功率放大到国产 AI 芯片。",
+        investment: "中国 EDA/IP 是长坡厚雪但验证周期长，适合看客户导入和工具覆盖率，而不是只看国产替代口号。"
+      },
+      shared_power: {
+        us: "美国 AI 工厂更强调长期购电、独立电力项目和 Vertiv/Eaton/Schneider 等全球电气设备能力。",
+        china: "中国依托国家电网、运营商智算和温控电源厂商，工程组织强，但要看真实上架率与电价。",
+        gap: "美国瓶颈在电网审批和新增电源；中国瓶颈在利用率、地方重复建设和高功率机柜稳定运行。",
+        investment: "共享电力约束下，中国机会在液冷、UPS、变压器、温控和高质量 IDC，而不是所有智算中心都值得买。"
+      },
+      shared_controls: {
+        us: "美国及盟友通过 BIS 规则影响先进芯片、HBM、设备和云服务可达性。",
+        china: "中国体系在规则压力下加速国产替代，同时保留存量和合规进口资源。",
+        gap: "政策边界越强，短期性能差距越难弥合；但也提高国产链条订单确定性。",
+        investment: "需要区分受益于真实替代的龙头和只受主题情绪驱动的公司。"
+      }
+    };
+    return shared[node.id] || byLayer[node.layer];
+  }
+
+  function renderComparison(node) {
+    const comparison = compareText(node);
+    return `
+      <div class="detail-section">
+        <h3>中美体系对比</h3>
+        <div class="compare-grid">
+          <div class="compare-item"><strong>美国及盟友体系</strong><span>${esc(comparison.us)}</span></div>
+          <div class="compare-item"><strong>中国 AI 体系</strong><span>${esc(comparison.china)}</span></div>
+          <div class="compare-item"><strong>差距与投资读法</strong><span>${esc(comparison.gap)} ${esc(comparison.investment)}</span></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function closeDetails() {
+    details.classList.remove("drawer-open");
+    page.classList.remove("has-details");
+    details.innerHTML = "";
+  }
+
+  function showDetails(node) {
+    details.classList.add("drawer-open");
+    page.classList.add("has-details");
+    details.innerHTML = `
+      <div class="detail-card">
+        <span class="detail-kicker ${node.ecosystem}">${ecosystemLabel(node.ecosystem)}</span>
+        <h2>${esc(node.title)}</h2>
+        <p>${esc(node.description)}</p>
+        <div class="detail-section">
+          <h3>${node.ecosystem === "shared" ? "两侧代表企业 / 机构" : "代表企业 / 机构"}</h3>
+          ${renderRepresentatives(node)}
+        </div>
+        <div class="detail-section">
+          <h3>体系角色</h3>
+          <p>${esc(node.role)}</p>
+        </div>
+        ${renderComparison(node)}
+        <div class="detail-section">
+          <h3>关键依赖</h3>
+          <div class="detail-list">${node.dependencies.map((item) => `<span class="pill">${esc(item)}</span>`).join("")}</div>
+        </div>
+        <div class="detail-section">
+          <h3>投资含义</h3>
+          <p>${esc(node.investmentMeaning)}</p>
+        </div>
+        <div class="detail-section">
+          <h3>主要风险</h3>
+          <p>${esc(node.risks)}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSources() {
+    return `
+      <div class="source-box">
+        <h3>来源与口径</h3>
+        ${sources.map((source) => `<a href="${esc(source.url)}" target="_blank" rel="noreferrer">${esc(source.label)}</a>`).join("")}
+      </div>
+    `;
+  }
+
+  function endpoint(rect, towardRight) {
+    return {
+      x: towardRight ? rect.right : rect.left,
+      y: rect.top + rect.height / 2
+    };
+  }
+
+  function drawLines(highlightId = null) {
+    svg.setAttribute("width", mapInner.scrollWidth);
+    svg.setAttribute("height", mapInner.scrollHeight);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    const mapRect = mapInner.getBoundingClientRect();
+    edges.forEach((edge) => {
+      const a = document.getElementById(edge.source);
+      const b = document.getElementById(edge.target);
+      if (!a || !b) return;
+      const ar = a.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      const aCenter = ar.left + ar.width / 2;
+      const bCenter = br.left + br.width / 2;
+      const start = endpoint(ar, aCenter <= bCenter);
+      const end = endpoint(br, bCenter < aCenter);
+      const x1 = start.x - mapRect.left;
+      const y1 = start.y - mapRect.top;
+      const x2 = end.x - mapRect.left;
+      const y2 = end.y - mapRect.top;
+      const dx = Math.max(70, Math.abs(x2 - x1) * .42);
+      const c1 = x1 <= x2 ? x1 + dx : x1 - dx;
+      const c2 = x1 <= x2 ? x2 - dx : x2 + dx;
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", `M ${x1} ${y1} C ${c1} ${y1}, ${c2} ${y2}, ${x2} ${y2}`);
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke-width", edge.type === "control" ? "1.5" : "1.25");
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("class", edge.type === "control" ? "path-control" : edge.type === "shared" ? "path-shared" : "path-internal");
+      const active = highlightId && (edge.source === highlightId || edge.target === highlightId);
+      const related = highlightId && (adj[highlightId]?.has(edge.source) || adj[highlightId]?.has(edge.target) || edge.source === highlightId || edge.target === highlightId);
+      if (active) path.classList.add("path-active");
+      if (highlightId && !related) path.classList.add("path-dim");
+      svg.appendChild(path);
+    });
+  }
+
+  function applyFocus(id = activeId()) {
+    document.querySelectorAll(".card").forEach((card) => {
+      const connected = id && (adj[id]?.has(card.id) || card.id === id);
+      card.classList.toggle("lit", Boolean(connected));
+      card.classList.toggle("dim", Boolean(id && !connected));
+      card.classList.toggle("selected", Boolean(selectedId && card.id === selectedId));
+    });
+    drawLines(id);
+  }
+
+  function scheduleDraw() {
+    requestAnimationFrame(() => drawLines(activeId()));
+  }
+
+  renderMap();
+  closeDetails();
+  requestAnimationFrame(() => {
+    drawLines();
+    mapScroll.scrollLeft = 0;
+  });
+  mapScroll.addEventListener("scroll", () => drawLines(activeId()), { passive: true });
+  window.addEventListener("resize", () => drawLines(activeId()));
+  document.fonts?.ready?.then(scheduleDraw);
+})();
+</script>
+</body>
+</html>
