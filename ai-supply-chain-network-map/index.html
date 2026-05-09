@@ -576,9 +576,8 @@ const mo=document.getElementById('mo');
 function cardCenter(el){
   const mr=mi.getBoundingClientRect();
   const er=el.getBoundingClientRect();
-  const sl=mo.scrollLeft, st=mo.scrollTop;
-  const x=er.left-mr.left+sl;
-  const y=er.top-mr.top+st;
+  const x=er.left-mr.left;
+  const y=er.top-mr.top;
   return{cx:x+er.width/2, cy:y+er.height/2,
          rx:x+er.width,   lx:x,
          ty:y,             by:y+er.height};
